@@ -19,6 +19,8 @@ const LEGAL_ISSUES = [
   "Other Legal Matter",
 ];
 
+const SARAH_IMAGE_SRC = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/sarah.png`;
+
 interface LeadFormProps {
   conversationId: number | null;
   onSubmit: (leadData: { name: string; email: string; phone: string; legalIssue: string }) => void;
@@ -71,7 +73,7 @@ export function LeadForm({ conversationId, onSubmit }: LeadFormProps) {
       {/* Header */}
       <div className="bg-primary px-4 py-4 flex items-center gap-3 shrink-0">
         <Avatar className="h-14 w-14 border-2 border-primary-foreground/30 shrink-0">
-          <AvatarImage src="/sarah.png" alt="Sarah" className="object-cover object-top scale-125 origin-top" />
+          <AvatarImage src={SARAH_IMAGE_SRC} alt="Sarah" className="object-cover object-top scale-125 origin-top" />
           <AvatarFallback className="bg-primary-foreground/10 text-primary-foreground">
             <Scale className="h-6 w-6" />
           </AvatarFallback>
@@ -87,7 +89,7 @@ export function LeadForm({ conversationId, onSubmit }: LeadFormProps) {
         {/* Welcome bubble */}
         <div className="flex items-start gap-2 mb-5">
           <Avatar className="h-8 w-8 shrink-0">
-            <AvatarImage src="/sarah.png" alt="Sarah" />
+            <AvatarImage src={SARAH_IMAGE_SRC} alt="Sarah" />
             <AvatarFallback className="bg-muted text-muted-foreground text-xs">S</AvatarFallback>
           </Avatar>
           <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-3 text-sm text-foreground max-w-[85%]">

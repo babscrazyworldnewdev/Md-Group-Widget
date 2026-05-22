@@ -42,6 +42,7 @@ Replace the domain with the final hosted widget domain:
   data-position="right"
   data-accent="#1b2a41"
   data-label="Chat with Sarah"
+  data-api-url="https://YOUR-API-DOMAIN.com"
   defer
 ></script>
 ```
@@ -66,12 +67,23 @@ The client website script will look like:
   data-position="right"
   data-accent="#1b2a41"
   data-label="Chat with Sarah"
+  data-api-url="https://YOUR-API-DOMAIN.com"
   defer
 ></script>
 ```
 
 ## Backend connection
 
-The widget calls `/api` when the API server is available. In production, deploy the API separately or configure the static host to proxy `/api` to the API server.
+The widget calls `/api` when the API server is available. In production, deploy the API separately and set `data-api-url` in the script tag to that API domain.
+
+The API must have these environment variables:
+
+```text
+DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DATABASE
+AI_INTEGRATIONS_OPENAI_BASE_URL=https://api.openai.com/v1
+AI_INTEGRATIONS_OPENAI_API_KEY=YOUR_OPENAI_API_KEY
+RESEND_API_KEY=YOUR_RESEND_API_KEY
+NOTIFY_EMAIL=billafonbarbara@gmail.com
+```
 
 If `/api` is unavailable, the widget still opens and uses demo replies.

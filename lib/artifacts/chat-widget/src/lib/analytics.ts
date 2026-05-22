@@ -1,3 +1,5 @@
+import { resolveApiPath } from "@/lib/api-config";
+
 function getBrowserInfo(): { browser: string; browserVersion: string } {
   const ua = navigator.userAgent;
   let browser = "Unknown";
@@ -101,7 +103,7 @@ export async function trackVisit(): Promise<void> {
   };
 
   try {
-    await fetch("/api/analytics/track", {
+    await fetch(resolveApiPath("/api/analytics/track"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

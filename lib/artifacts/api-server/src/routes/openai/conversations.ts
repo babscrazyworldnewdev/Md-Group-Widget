@@ -12,7 +12,7 @@ import {
 } from "@workspace/api-zod";
 
 const router = Router();
-const NOTIFY_EMAIL = "billafonbarbara@gmail.com";
+const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL ?? "billafonbarbara@gmail.com";
 
 const SYSTEM_PROMPT = `You are Sarah, a warm and knowledgeable virtual legal intake assistant for MD Law Group — a personal injury and family law firm. Your role is to:
 
@@ -74,7 +74,7 @@ async function sendTranscriptEmail(conversationId: number) {
       </div>
     </div>`;
 
-  await fetch("https://api.resend.com/emails", {
+  const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${resendApiKey}`,
@@ -87,6 +87,64 @@ async function sendTranscriptEmail(conversationId: number) {
       html,
     }),
   });
+
+  if (!response.ok) {
+    throw new Error(`Resend transcript email failed: ${response.status} ${await response.text()}`);
+  }
+}
+
+async function sendMessageEmail(
+  conversationId: number,
+  role: "user" | "assistant",
+  content: string,
+) {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) return;
+
+  const [lead] = await db
+    .select()
+    .from(leads)
+    .where(eq(leads.conversationId, String(conversationId)));
+
+  const label = role === "user" ? "Visitor" : "Sarah";
+  const leadSummary = lead
+    ? `
+      <table style="width: 100%; border-collapse: collapse; margin: 0 0 18px;">
+        <tr><td style="padding: 6px 0; color: #6b7280;">Name</td><td style="padding: 6px 0;">${escapeHtml(lead.name)}</td></tr>
+        <tr><td style="padding: 6px 0; color: #6b7280;">Email</td><td style="padding: 6px 0;">${escapeHtml(lead.email)}</td></tr>
+        <tr><td style="padding: 6px 0; color: #6b7280;">Phone</td><td style="padding: 6px 0;">${escapeHtml(lead.phone)}</td></tr>
+        <tr><td style="padding: 6px 0; color: #6b7280;">Legal Issue</td><td style="padding: 6px 0;">${escapeHtml(lead.legalIssue)}</td></tr>
+      </table>`
+    : `<p style="margin: 0 0 18px; color: #6b7280;">No lead form has been attached to this conversation yet.</p>`;
+
+  const html = `
+    <div style="font-family: Inter, Arial, sans-serif; max-width: 640px; margin: 0 auto; padding: 24px; color: #111827;">
+      <h1 style="font-size: 20px; margin: 0 0 8px;">New Chat Message</h1>
+      <p style="margin: 0 0 18px; color: #6b7280;">Conversation #${conversationId} - ${label}</p>
+      ${leadSummary}
+      <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px;">
+        <strong>${label}:</strong>
+        <p style="white-space: pre-wrap; line-height: 1.5; margin: 8px 0 0;">${escapeHtml(content)}</p>
+      </div>
+    </div>`;
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendApiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "onboarding@resend.dev",
+      to: [NOTIFY_EMAIL],
+      subject: `New Chat Message from ${lead?.name ?? "Website Visitor"}`,
+      html,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Resend message email failed: ${response.status} ${await response.text()}`);
+  }
 }
 
 // GET /api/openai/conversations
@@ -220,6 +278,10 @@ router.post("/conversations/:id/messages", async (req, res) => {
       content: userContent,
     });
 
+    sendMessageEmail(conversationId, "user", userContent).catch((emailError) => {
+      req.log.error({ err: emailError }, "Failed to send user message email");
+    });
+
     // Load full history for context
     const history = await db
       .select()
@@ -261,6 +323,10 @@ router.post("/conversations/:id/messages", async (req, res) => {
       conversationId,
       role: "assistant",
       content: fullResponse,
+    });
+
+    sendMessageEmail(conversationId, "assistant", fullResponse).catch((emailError) => {
+      req.log.error({ err: emailError }, "Failed to send assistant message email");
     });
 
     sendTranscriptEmail(conversationId).catch((emailError) => {

@@ -8,7 +8,7 @@ import {
 
 const router = Router();
 
-const NOTIFY_EMAIL = "billafonbarbara@gmail.com";
+const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL ?? "billafonbarbara@gmail.com";
 
 type ConversationMessage = typeof messages.$inferSelect;
 
@@ -124,7 +124,7 @@ async function sendLeadEmail(
     </div>
   </div>`;
 
-  await fetch("https://api.resend.com/emails", {
+  const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${resendApiKey}`,
@@ -137,6 +137,10 @@ async function sendLeadEmail(
       html,
     }),
   });
+
+  if (!response.ok) {
+    throw new Error(`Resend lead email failed: ${response.status} ${await response.text()}`);
+  }
 }
 
 // POST /api/leads

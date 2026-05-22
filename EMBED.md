@@ -8,6 +8,7 @@ After deploying the chat widget app, paste this snippet before the closing `</bo
   data-position="right"
   data-accent="#1b2a41"
   data-label="Chat with Sarah"
+  data-api-url="https://YOUR-API-DOMAIN.com"
   defer
 ></script>
 ```
@@ -22,5 +23,6 @@ Optional settings:
 - `data-title`: iframe accessibility title
 - `data-bottom`: launcher distance from the bottom, such as `24px`
 - `data-side`: launcher distance from the selected side, such as `24px`
+- `data-api-url`: deployed API server URL, needed for saved leads, AI replies, and Resend email notifications
 
 The script creates a floating chat button, opens the hosted `/embed` widget in an iframe, and automatically adjusts the iframe for mobile screens.

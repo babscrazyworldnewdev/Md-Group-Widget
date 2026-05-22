@@ -12,6 +12,7 @@ export function ChatWidgetPage() {
   data-position="right"
   data-accent="#1b2a41"
   data-label="Chat with Sarah"
+  data-api-url="https://YOUR-API-DOMAIN.com"
   defer
 ></script>`;
 

@@ -11,6 +11,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { LeadForm } from "./lead-form";
 import { trackVisit } from "@/lib/analytics";
+import { resolveApiPath } from "@/lib/api-config";
 
 const SUGGESTIONS = [
   "Personal Injury",
@@ -29,10 +30,25 @@ const SUGGESTIONS = [
 const WELCOME_MESSAGE = "Hi! Welcome to MD Law Group. I'm the virtual assistant for the firm. I can help answer questions, point you in the right direction, and connect you with the legal team if needed. What can we help you with today?";
 
 const DEMO_CONVERSATION_ID = -1;
+const SARAH_IMAGE_SRC = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/sarah.png`;
 
 function buildDemoResponse(message: string) {
+  const lower = message.toLowerCase();
   const topic = message.trim() || "your legal matter";
-  return `Thanks for sharing that. For ${topic.toLowerCase()}, the best next step is usually to gather a few basic details, such as what happened, when it happened, and whether there are deadlines or documents involved. I can give general information here, but an attorney should review the facts before giving legal advice specific to your situation.`;
+
+  if (lower.includes("car") || lower.includes("accident") || lower.includes("injury")) {
+    return "I'm sorry that happened. Please write down when and where it happened, whether anyone was injured, if a police report was made, and whether insurance has contacted you. I can share general information here, but an attorney should review the facts before giving advice specific to your case.";
+  }
+
+  if (lower.includes("divorce") || lower.includes("custody") || lower.includes("family")) {
+    return "Family matters can feel heavy, so the useful starting point is understanding whether there are children involved, any existing court orders, and what outcome you are hoping for. I can help organize the basics, but an attorney should review your situation before giving legal advice.";
+  }
+
+  if (lower.includes("criminal")) {
+    return "If this involves an arrest, court date, warrant, or police contact, please treat it as time-sensitive and speak with an attorney as soon as possible. The most helpful details are the charge, court date, location, and whether paperwork was given to you.";
+  }
+
+  return `Thanks for sharing that. For ${topic.toLowerCase()}, the best next step is to gather what happened, when it happened, who was involved, any documents or deadlines, and the best phone/email to reach you. I can provide general information, but an attorney should review the details before giving advice specific to your situation.`;
 }
 
 export function ChatWidget({ embedMode = false }: { embedMode?: boolean }) {
@@ -144,7 +160,7 @@ export function ChatWidget({ embedMode = false }: { embedMode?: boolean }) {
     );
 
     try {
-      const res = await fetch(`/api/openai/conversations/${activeConversationId}/messages`, {
+      const res = await fetch(resolveApiPath(`/api/openai/conversations/${activeConversationId}/messages`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: messageContent }),
@@ -230,7 +246,7 @@ export function ChatWidget({ embedMode = false }: { embedMode?: boolean }) {
       {/* Header */}
       <div className="bg-primary px-4 py-3 flex items-center gap-3 shrink-0">
         <Avatar className="h-14 w-14 border-2 border-primary-foreground/30 shrink-0">
-          <AvatarImage src="/sarah.png" alt="Sarah" className="object-cover object-top scale-125 origin-top" />
+          <AvatarImage src={SARAH_IMAGE_SRC} alt="Sarah" className="object-cover object-top scale-125 origin-top" />
           <AvatarFallback className="bg-primary-foreground/10 text-primary-foreground">
             <Scale className="h-6 w-6" />
           </AvatarFallback>
@@ -247,7 +263,7 @@ export function ChatWidget({ embedMode = false }: { embedMode?: boolean }) {
         <div className="flex justify-start">
           <div className="flex gap-2 max-w-[85%]">
             <Avatar className="h-8 w-8 mt-auto shrink-0">
-              <AvatarImage src="/sarah.png" alt="Sarah" />
+              <AvatarImage src={SARAH_IMAGE_SRC} alt="Sarah" />
               <AvatarFallback className="bg-muted text-muted-foreground text-xs">S</AvatarFallback>
             </Avatar>
             <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm text-foreground">
@@ -266,7 +282,7 @@ export function ChatWidget({ embedMode = false }: { embedMode?: boolean }) {
                   </AvatarFallback>
                 ) : (
                   <>
-                    <AvatarImage src="/sarah.png" alt="Sarah" />
+                    <AvatarImage src={SARAH_IMAGE_SRC} alt="Sarah" />
                     <AvatarFallback className="bg-muted text-muted-foreground text-xs">S</AvatarFallback>
                   </>
                 )}
@@ -288,7 +304,7 @@ export function ChatWidget({ embedMode = false }: { embedMode?: boolean }) {
           <div className="flex justify-start">
             <div className="flex gap-2 max-w-[85%]">
               <Avatar className="h-8 w-8 mt-auto shrink-0">
-                <AvatarImage src="/sarah.png" alt="Sarah" />
+                <AvatarImage src={SARAH_IMAGE_SRC} alt="Sarah" />
                 <AvatarFallback className="bg-muted text-muted-foreground text-xs">S</AvatarFallback>
               </Avatar>
               <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm text-foreground whitespace-pre-wrap">
