@@ -93,7 +93,7 @@ export function LeadForm({ conversationId, onSubmit }: LeadFormProps) {
             <AvatarFallback className="bg-muted text-muted-foreground text-xs">S</AvatarFallback>
           </Avatar>
           <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-3 text-sm text-foreground max-w-[85%]">
-            Hi 👋 I'm Sarah from <strong>MD Law Group</strong>. Feel free to share your info below, or just click "Start" to chat right away.
+            Hi, I'm Sarah from <strong>MD Law Group</strong>. Share your info below, or click "Start" to chat right away. Your message will be sent to the team for review.
           </div>
         </div>
 

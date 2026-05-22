@@ -55,9 +55,17 @@ function hasContactInfo(text: string) {
   return /[^\s@]+@[^\s@]+\.[^\s@]+/.test(text) || /\+?\d[\d\s().-]{7,}/.test(text);
 }
 
+function includesAny(text: string, words: string[]) {
+  return words.some((word) => text.includes(word));
+}
+
+function chooseNextQuestion(options: Array<{ answered: boolean; text: string }>, fallback: string) {
+  return options.find((option) => !option.answered)?.text ?? fallback;
+}
+
 function buildDemoResponse(message: string, history: DemoMessage[]) {
   const lower = message.toLowerCase();
-  const fullContext = [...history.map((item) => item.content), message].join(" ");
+  const fullContext = [...history.map((item) => item.content), message].join(" ").toLowerCase();
   const practiceArea = detectPracticeArea(fullContext);
   const historyAlreadyIncludesMessage = history.some(
     (item) => item.role === "user" && item.content === message,
@@ -70,60 +78,88 @@ function buildDemoResponse(message: string, history: DemoMessage[]) {
   }
 
   const consultationNudge = "Based on what you shared, this sounds worth having the MD Law Group team review. Would you like me to help send this as a consultation request?";
+  const hasDate = includesAny(fullContext, ["today", "yesterday", "last week", "last month", "ago", "202", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]);
+  const hasInjury = includesAny(fullContext, ["hurt", "injur", "pain", "sore", "neck", "back", "hospital", "doctor", "clinic", "ambulance", "medical"]);
+  const hasMedical = includesAny(fullContext, ["hospital", "doctor", "clinic", "medical", "treatment", "physio", "chiropractor", "ambulance", "emergency"]);
+  const hasInsurance = includesAny(fullContext, ["insurance", "adjuster", "claim", "denied"]);
+  const hasOtherParty = includesAny(fullContext, ["driver", "vehicle", "company", "truck", "person", "someone", "rear", "hit me", "at fault"]);
+  const hasCourtDate = includesAny(fullContext, ["court", "hearing", "trial", "appearance", "date"]);
+  const hasCharge = includesAny(fullContext, ["charged", "charge", "dui", "assault", "fraud", "weapon", "drug", "theft"]);
+  const hasJurisdiction = includesAny(fullContext, ["alberta", "edmonton", "calgary", "northwest territories", "nwt"]);
+  const hasActiveCase = includesAny(fullContext, ["court case", "filed", "order", "agreement", "served", "application"]);
+  const hasDesiredOutcome = includesAny(fullContext, ["want", "need", "hoping", "custody", "support", "divorce", "parenting", "access"]);
+  const hasDeadline = includesAny(fullContext, ["deadline", "expires", "hearing", "deport", "removal", "urgent", "asap"]);
+  const hasPaperwork = includesAny(fullContext, ["filed", "application", "paperwork", "forms", "submitted"]);
+  const hasStillEmployed = includesAny(fullContext, ["still employed", "still work", "fired", "terminated", "quit", "laid off"]);
+  const hasDocuments = includesAny(fullContext, ["email", "text", "document", "letter", "contract", "record", "screenshot"]);
 
   if (lower.includes("court") || lower.includes("arrest") || lower.includes("warrant") || lower.includes("bail")) {
-    return "That sounds time-sensitive, and I can understand why you would want help quickly. If there is an upcoming court date, arrest, warrant, or bail issue, it may be important to speak with MD Law Group as soon as possible. What is the next date or deadline you are dealing with?";
+    const next = chooseNextQuestion(
+      [
+        { answered: hasCourtDate, text: "That sounds time-sensitive, and I can understand why you would want help quickly. What is the next court date or deadline you are dealing with?" },
+        { answered: hasCharge, text: "Thank you. What charge or allegation is listed on the paperwork, if you have it?" },
+        { answered: hasJurisdiction, text: "Got it. Is this happening in Alberta or the Northwest Territories?" },
+      ],
+      "This sounds like something the MD Law Group criminal defence team should review quickly. Would you like to send a consultation request?",
+    );
+    return next;
   }
 
   if (practiceArea === "injury") {
-    const questions = [
-      "I'm sorry that happened. You did the right thing by reaching out, especially if there were injuries or insurance is already involved. Were you injured, even if the symptoms seemed minor at first?",
-      "That's helpful to know. When did the accident happen?",
-      "Got it. Did you receive medical treatment or speak with a doctor after it happened?",
-      "One more useful detail: has insurance contacted you or denied anything yet?",
+    return chooseNextQuestion(
+      [
+        { answered: hasInjury, text: "I'm sorry that happened. You did the right thing by reaching out. Were you injured, even if the symptoms seemed minor at first?" },
+        { answered: hasDate, text: "That's helpful to know. When did the accident happen?" },
+        { answered: hasMedical, text: "Got it. Did you receive medical treatment or speak with a doctor after it happened?" },
+        { answered: hasOtherParty, text: "Was another driver, person, or company involved?" },
+        { answered: hasInsurance, text: "One more useful detail: has insurance contacted you or denied anything yet?" },
+      ],
       consultationNudge,
-    ];
-    return questions[Math.min(visitorTurnCount - 1, questions.length - 1)];
+    );
   }
 
   if (practiceArea === "family") {
-    const questions = [
-      "Family law situations can feel emotionally exhausting. I can help keep this simple and take it one step at a time. Is there already an active court case or order in place?",
-      "Thank you. Is this mainly about divorce, custody, child support, parenting time, or something else?",
-      "I understand. What outcome are you hoping for right now?",
+    return chooseNextQuestion(
+      [
+        { answered: hasActiveCase, text: "Family law situations can feel emotionally exhausting. I can help keep this simple. Is there already an active court case or order in place?" },
+        { answered: hasDesiredOutcome, text: "Thank you. What outcome are you hoping for right now?" },
+        { answered: hasJurisdiction, text: "Is this family law matter in Alberta?" },
+      ],
       consultationNudge,
-    ];
-    return questions[Math.min(visitorTurnCount - 1, questions.length - 1)];
+    );
   }
 
   if (practiceArea === "criminal") {
-    const questions = [
-      "That may be time-sensitive, depending on whether there was an arrest, charge, warrant, or upcoming court date. The safest next step is usually to have a lawyer review the situation before you speak in detail about it. Is there an upcoming court date?",
-      "Thank you. What charge or allegation is listed on the paperwork, if you have it?",
-      "Got it. Is this happening in Alberta or the Northwest Territories?",
+    return chooseNextQuestion(
+      [
+        { answered: hasCourtDate, text: "That may be time-sensitive. Is there an upcoming court date or deadline?" },
+        { answered: hasCharge, text: "Thank you. What charge or allegation is listed on the paperwork, if you have it?" },
+        { answered: hasJurisdiction, text: "Got it. Is this happening in Alberta or the Northwest Territories?" },
+      ],
       "This sounds like something the MD Law Group criminal defence team should review quickly. Would you like to send a consultation request?",
-    ];
-    return questions[Math.min(visitorTurnCount - 1, questions.length - 1)];
+    );
   }
 
   if (practiceArea === "immigration") {
-    const questions = [
-      "Immigration issues can feel stressful because deadlines and paperwork matter a lot. I can help organize the basics before the team reviews it. Is there an important deadline or application already in progress?",
-      "Thanks. Is this about a visa, permanent residence, citizenship, temporary residence, a family petition, or something else?",
-      "Have you already filed paperwork, or are you still deciding what to file?",
+    return chooseNextQuestion(
+      [
+        { answered: hasDeadline, text: "Immigration issues can feel stressful because deadlines and paperwork matter a lot. Is there an important deadline coming up?" },
+        { answered: hasPaperwork, text: "Have you already filed paperwork, or are you still deciding what to file?" },
+        { answered: includesAny(fullContext, ["visa", "permanent", "citizenship", "temporary", "family petition", "business"]), text: "Is this about a visa, permanent residence, citizenship, temporary residence, a family petition, or something else?" },
+      ],
       consultationNudge,
-    ];
-    return questions[Math.min(visitorTurnCount - 1, questions.length - 1)];
+    );
   }
 
   if (practiceArea === "employment") {
-    const questions = [
-      "Workplace issues can be really upsetting, especially when your income or reputation is affected. A helpful first step is figuring out what happened and when. Are you still employed there?",
-      "Thank you. When did this begin?",
-      "Have you kept any documents, emails, texts, or notes about what happened?",
+    return chooseNextQuestion(
+      [
+        { answered: hasStillEmployed, text: "Workplace issues can be really upsetting, especially when your income or reputation is affected. Are you still employed there?" },
+        { answered: hasDate, text: "Thank you. When did this begin?" },
+        { answered: hasDocuments, text: "Have you kept any documents, emails, texts, or notes about what happened?" },
+      ],
       consultationNudge,
-    ];
-    return questions[Math.min(visitorTurnCount - 1, questions.length - 1)];
+    );
   }
 
   if (visitorTurnCount >= 3) {

@@ -33,7 +33,7 @@ export function ChatWidgetPage() {
           </div>
           
           <p className="text-foreground/80 leading-relaxed">
-            This is a demonstration of the legal intake chat widget. It's designed to live on the law firm's website and provide 24/7 availability for potential clients.
+            This is the MD Law Group website intake assistant. It helps visitors understand the next step, request a consultation, and connect with the legal team.
           </p>
           
           <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
