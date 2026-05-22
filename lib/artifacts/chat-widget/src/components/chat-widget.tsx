@@ -36,19 +36,31 @@ function buildDemoResponse(message: string) {
   const lower = message.toLowerCase();
   const topic = message.trim() || "your legal matter";
 
+  if (lower.includes("court") || lower.includes("arrest") || lower.includes("warrant") || lower.includes("bail")) {
+    return "That sounds time-sensitive, and I can understand why you would want help quickly. If there is an upcoming court date, arrest, warrant, or bail issue, it may be important to speak with MD Law Group as soon as possible. What is the next date or deadline you are dealing with?";
+  }
+
   if (lower.includes("car") || lower.includes("accident") || lower.includes("injury")) {
-    return "I'm sorry that happened. Please write down when and where it happened, whether anyone was injured, if a police report was made, and whether insurance has contacted you. I can share general information here, but an attorney should review the facts before giving advice specific to your case.";
+    return "I'm sorry that happened. You did the right thing by reaching out, especially if there were injuries or insurance is already involved. Were you injured, even if the symptoms seemed minor at first?";
   }
 
   if (lower.includes("divorce") || lower.includes("custody") || lower.includes("family")) {
-    return "Family matters can feel heavy, so the useful starting point is understanding whether there are children involved, any existing court orders, and what outcome you are hoping for. I can help organize the basics, but an attorney should review your situation before giving legal advice.";
+    return "Family law situations can feel emotionally exhausting. I can help keep this simple and take it one step at a time. Is there already an active court case or order in place?";
   }
 
   if (lower.includes("criminal")) {
-    return "If this involves an arrest, court date, warrant, or police contact, please treat it as time-sensitive and speak with an attorney as soon as possible. The most helpful details are the charge, court date, location, and whether paperwork was given to you.";
+    return "That may be time-sensitive, depending on whether there was an arrest, charge, warrant, or upcoming court date. The safest next step is usually to have a lawyer review the situation before you speak in detail about it. Is there an upcoming court date?";
   }
 
-  return `Thanks for sharing that. For ${topic.toLowerCase()}, the best next step is to gather what happened, when it happened, who was involved, any documents or deadlines, and the best phone/email to reach you. I can provide general information, but an attorney should review the details before giving advice specific to your situation.`;
+  if (lower.includes("immigration") || lower.includes("visa") || lower.includes("citizenship") || lower.includes("deport")) {
+    return "Immigration issues can feel stressful because deadlines and paperwork matter a lot. I can help organize the basics before the team reviews it. Is there an important deadline or application already in progress?";
+  }
+
+  if (lower.includes("employment") || lower.includes("fired") || lower.includes("terminated") || lower.includes("harassment") || lower.includes("discrimination")) {
+    return "Workplace issues can be really upsetting, especially when your income or reputation is affected. A helpful first step is figuring out what happened and when. Are you still employed there?";
+  }
+
+  return `Thanks for sharing that. For ${topic.toLowerCase()}, I can help keep this simple and point you in the right direction. What happened, in one or two sentences?`;
 }
 
 export function ChatWidget({ embedMode = false }: { embedMode?: boolean }) {
