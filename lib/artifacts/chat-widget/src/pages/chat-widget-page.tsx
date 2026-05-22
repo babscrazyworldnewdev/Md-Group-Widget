@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 
 export function ChatWidgetPage() {
   const [copied, setCopied] = useState(false);
+  const widgetBaseUrl = new URL(import.meta.env.BASE_URL, window.location.origin).href.replace(/\/$/, "");
   
   const embedCode = `<script
-  src="${window.location.origin}/widget.js"
+  src="${widgetBaseUrl}/widget.js"
   data-position="right"
   data-accent="#1b2a41"
   data-label="Chat with Sarah"
