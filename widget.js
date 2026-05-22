@@ -4,7 +4,9 @@
 
   var script = document.currentScript;
   var scriptSrc = script && script.src ? script.src : "";
-  var origin = scriptSrc ? new URL(scriptSrc).origin : window.location.origin;
+  var baseUrl = scriptSrc
+    ? new URL(".", scriptSrc).href.replace(/\/$/, "")
+    : window.location.origin;
   var requestedPosition = (script && script.dataset.position) || "right";
   var position = requestedPosition === "left" ? "left" : "right";
   var accent = (script && script.dataset.accent) || "#1b2a41";
@@ -14,7 +16,7 @@
   var side = (script && script.dataset.side) || "24px";
 
   var iframe = document.createElement("iframe");
-  iframe.src = origin + "/embed";
+  iframe.src = baseUrl + "/embed";
   iframe.title = title + " chat widget";
   iframe.allow = "microphone";
   iframe.style.position = "fixed";
