@@ -1,0 +1,18 @@
+{
+  "buildCommand": "corepack pnpm --filter @workspace/chat-widget run build",
+  "outputDirectory": "dist/public",
+  "rewrites": [
+    {
+      "source": "/embed",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/((?!assets/|widget.js|sarah.png|favicon.svg|robots.txt|opengraph.jpg).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

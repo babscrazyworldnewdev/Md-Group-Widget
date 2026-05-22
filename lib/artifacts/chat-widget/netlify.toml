@@ -1,0 +1,18 @@
+[build]
+command = "corepack pnpm --filter @workspace/chat-widget run build"
+publish = "dist/public"
+
+[[redirects]]
+from = "/embed"
+to = "/index.html"
+status = 200
+
+[[redirects]]
+from = "/admin"
+to = "/index.html"
+status = 200
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200

@@ -1,0 +1,42 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Install dependencies",
+      "type": "shell",
+      "command": "pnpm install",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run widget",
+      "type": "shell",
+      "command": "pnpm dev:widget",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": "Local:.*http://localhost:5173"
+        }
+      }
+    },
+    {
+      "label": "Run API",
+      "type": "shell",
+      "command": "pnpm dev:api",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "pnpm build",
+      "group": "build",
+      "problemMatcher": "$tsc"
+    }
+  ]
+}

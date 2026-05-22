@@ -1,0 +1,443 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: openai
+    description: OpenAI AI chat operations
+  - name: leads
+    description: Lead capture and visitor analytics
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /openai/conversations:
+    get:
+      operationId: listOpenaiConversations
+      tags: [openai]
+      summary: List all conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiConversation"
+    post:
+      operationId: createOpenaiConversation
+      tags: [openai]
+      summary: Create a new conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenaiConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversation"
+  /openai/conversations/{id}:
+    get:
+      operationId: getOpenaiConversation
+      tags: [openai]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversationWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiError"
+    delete:
+      operationId: deleteOpenaiConversation
+      tags: [openai]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiError"
+  /openai/conversations/{id}/messages:
+    get:
+      operationId: listOpenaiMessages
+      tags: [openai]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiMessage"
+    post:
+      operationId: sendOpenaiMessage
+      tags: [openai]
+      summary: Send a text message and receive a streaming text response
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenaiMessageInput"
+      responses:
+        "200":
+          description: SSE stream of assistant text chunks
+          content:
+            text/event-stream: {}
+  /leads:
+    post:
+      operationId: submitLead
+      tags: [leads]
+      summary: Submit a new lead (contact form before chat)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeadInput"
+      responses:
+        "201":
+          description: Lead created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+    get:
+      operationId: listLeads
+      tags: [leads]
+      summary: List all leads
+      responses:
+        "200":
+          description: List of leads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lead"
+  /analytics/track:
+    post:
+      operationId: trackVisitor
+      tags: [leads]
+      summary: Track a visitor session with browser/device/location data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitorTrackInput"
+      responses:
+        "201":
+          description: Session tracked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitorSession"
+  /analytics/sessions:
+    get:
+      operationId: listVisitorSessions
+      tags: [leads]
+      summary: List all visitor sessions
+      responses:
+        "200":
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VisitorSession"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    OpenaiConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - createdAt
+    OpenaiConversationInput:
+      type: object
+      properties:
+        title:
+          type: string
+      required:
+        - title
+    OpenaiConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpenaiMessage"
+      required:
+        - id
+        - title
+        - createdAt
+        - messages
+    OpenaiMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - role
+        - content
+        - createdAt
+    OpenaiMessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content
+    OpenaiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    LeadInput:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        legalIssue:
+          type: string
+        conversationId:
+          type: string
+      required:
+        - name
+        - email
+        - phone
+        - legalIssue
+    Lead:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        legalIssue:
+          type: string
+        conversationId:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - phone
+        - legalIssue
+        - createdAt
+    VisitorTrackInput:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        browser:
+          type: string
+        browserVersion:
+          type: string
+        os:
+          type: string
+        osVersion:
+          type: string
+        device:
+          type: string
+        screenWidth:
+          type: string
+        screenHeight:
+          type: string
+        language:
+          type: string
+        referrer:
+          type: string
+        pageUrl:
+          type: string
+        userAgent:
+          type: string
+        timezone:
+          type: string
+        extra:
+          type: object
+          additionalProperties: true
+      required:
+        - sessionId
+    VisitorSession:
+      type: object
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: string
+        ip:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        region:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          nullable: true
+        latitude:
+          type: string
+          nullable: true
+        longitude:
+          type: string
+          nullable: true
+        isp:
+          type: string
+          nullable: true
+        browser:
+          type: string
+          nullable: true
+        browserVersion:
+          type: string
+          nullable: true
+        os:
+          type: string
+          nullable: true
+        osVersion:
+          type: string
+          nullable: true
+        device:
+          type: string
+          nullable: true
+        screenWidth:
+          type: string
+          nullable: true
+        screenHeight:
+          type: string
+          nullable: true
+        language:
+          type: string
+          nullable: true
+        referrer:
+          type: string
+          nullable: true
+        pageUrl:
+          type: string
+          nullable: true
+        userAgent:
+          type: string
+          nullable: true
+        extra:
+          type: object
+          additionalProperties: true
+          nullable: true
+        visitedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - sessionId
+        - visitedAt
