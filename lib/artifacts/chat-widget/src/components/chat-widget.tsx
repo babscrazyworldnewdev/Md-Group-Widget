@@ -32,35 +32,105 @@ const WELCOME_MESSAGE = "Hi! Welcome to MD Law Group. I'm the virtual assistant 
 const DEMO_CONVERSATION_ID = -1;
 const SARAH_IMAGE_SRC = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/sarah.png`;
 
-function buildDemoResponse(message: string) {
+type DemoMessage = {
+  id: number;
+  conversationId: number;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: string;
+};
+
+function detectPracticeArea(text: string) {
+  const lower = text.toLowerCase();
+  if (lower.includes("court") || lower.includes("arrest") || lower.includes("warrant") || lower.includes("bail") || lower.includes("criminal")) return "criminal";
+  if (lower.includes("car") || lower.includes("accident") || lower.includes("injury") || lower.includes("insurance")) return "injury";
+  if (lower.includes("divorce") || lower.includes("custody") || lower.includes("child") || lower.includes("family")) return "family";
+  if (lower.includes("immigration") || lower.includes("visa") || lower.includes("citizenship") || lower.includes("deport") || lower.includes("permanent resident")) return "immigration";
+  if (lower.includes("employment") || lower.includes("fired") || lower.includes("terminated") || lower.includes("harassment") || lower.includes("discrimination") || lower.includes("severance")) return "employment";
+  if (lower.includes("real estate") || lower.includes("house") || lower.includes("closing") || lower.includes("property")) return "real-estate";
+  return "general";
+}
+
+function hasContactInfo(text: string) {
+  return /[^\s@]+@[^\s@]+\.[^\s@]+/.test(text) || /\+?\d[\d\s().-]{7,}/.test(text);
+}
+
+function buildDemoResponse(message: string, history: DemoMessage[]) {
   const lower = message.toLowerCase();
-  const topic = message.trim() || "your legal matter";
+  const fullContext = [...history.map((item) => item.content), message].join(" ");
+  const practiceArea = detectPracticeArea(fullContext);
+  const historyAlreadyIncludesMessage = history.some(
+    (item) => item.role === "user" && item.content === message,
+  );
+  const visitorTurnCount =
+    history.filter((item) => item.role === "user").length + (historyAlreadyIncludesMessage ? 0 : 1);
+
+  if (hasContactInfo(message)) {
+    return "Perfect, thank you. I have enough to package this clearly for the MD Law Group team. If this becomes urgent before someone reaches out, please call the office directly at (587) 520-1885.";
+  }
+
+  const consultationNudge = "Based on what you shared, this sounds worth having the MD Law Group team review. Would you like me to help send this as a consultation request?";
 
   if (lower.includes("court") || lower.includes("arrest") || lower.includes("warrant") || lower.includes("bail")) {
     return "That sounds time-sensitive, and I can understand why you would want help quickly. If there is an upcoming court date, arrest, warrant, or bail issue, it may be important to speak with MD Law Group as soon as possible. What is the next date or deadline you are dealing with?";
   }
 
-  if (lower.includes("car") || lower.includes("accident") || lower.includes("injury")) {
-    return "I'm sorry that happened. You did the right thing by reaching out, especially if there were injuries or insurance is already involved. Were you injured, even if the symptoms seemed minor at first?";
+  if (practiceArea === "injury") {
+    const questions = [
+      "I'm sorry that happened. You did the right thing by reaching out, especially if there were injuries or insurance is already involved. Were you injured, even if the symptoms seemed minor at first?",
+      "That's helpful to know. When did the accident happen?",
+      "Got it. Did you receive medical treatment or speak with a doctor after it happened?",
+      "One more useful detail: has insurance contacted you or denied anything yet?",
+      consultationNudge,
+    ];
+    return questions[Math.min(visitorTurnCount - 1, questions.length - 1)];
   }
 
-  if (lower.includes("divorce") || lower.includes("custody") || lower.includes("family")) {
-    return "Family law situations can feel emotionally exhausting. I can help keep this simple and take it one step at a time. Is there already an active court case or order in place?";
+  if (practiceArea === "family") {
+    const questions = [
+      "Family law situations can feel emotionally exhausting. I can help keep this simple and take it one step at a time. Is there already an active court case or order in place?",
+      "Thank you. Is this mainly about divorce, custody, child support, parenting time, or something else?",
+      "I understand. What outcome are you hoping for right now?",
+      consultationNudge,
+    ];
+    return questions[Math.min(visitorTurnCount - 1, questions.length - 1)];
   }
 
-  if (lower.includes("criminal")) {
-    return "That may be time-sensitive, depending on whether there was an arrest, charge, warrant, or upcoming court date. The safest next step is usually to have a lawyer review the situation before you speak in detail about it. Is there an upcoming court date?";
+  if (practiceArea === "criminal") {
+    const questions = [
+      "That may be time-sensitive, depending on whether there was an arrest, charge, warrant, or upcoming court date. The safest next step is usually to have a lawyer review the situation before you speak in detail about it. Is there an upcoming court date?",
+      "Thank you. What charge or allegation is listed on the paperwork, if you have it?",
+      "Got it. Is this happening in Alberta or the Northwest Territories?",
+      "This sounds like something the MD Law Group criminal defence team should review quickly. Would you like to send a consultation request?",
+    ];
+    return questions[Math.min(visitorTurnCount - 1, questions.length - 1)];
   }
 
-  if (lower.includes("immigration") || lower.includes("visa") || lower.includes("citizenship") || lower.includes("deport")) {
-    return "Immigration issues can feel stressful because deadlines and paperwork matter a lot. I can help organize the basics before the team reviews it. Is there an important deadline or application already in progress?";
+  if (practiceArea === "immigration") {
+    const questions = [
+      "Immigration issues can feel stressful because deadlines and paperwork matter a lot. I can help organize the basics before the team reviews it. Is there an important deadline or application already in progress?",
+      "Thanks. Is this about a visa, permanent residence, citizenship, temporary residence, a family petition, or something else?",
+      "Have you already filed paperwork, or are you still deciding what to file?",
+      consultationNudge,
+    ];
+    return questions[Math.min(visitorTurnCount - 1, questions.length - 1)];
   }
 
-  if (lower.includes("employment") || lower.includes("fired") || lower.includes("terminated") || lower.includes("harassment") || lower.includes("discrimination")) {
-    return "Workplace issues can be really upsetting, especially when your income or reputation is affected. A helpful first step is figuring out what happened and when. Are you still employed there?";
+  if (practiceArea === "employment") {
+    const questions = [
+      "Workplace issues can be really upsetting, especially when your income or reputation is affected. A helpful first step is figuring out what happened and when. Are you still employed there?",
+      "Thank you. When did this begin?",
+      "Have you kept any documents, emails, texts, or notes about what happened?",
+      consultationNudge,
+    ];
+    return questions[Math.min(visitorTurnCount - 1, questions.length - 1)];
   }
 
-  return `Thanks for sharing that. For ${topic.toLowerCase()}, I can help keep this simple and point you in the right direction. What happened, in one or two sentences?`;
+  if (visitorTurnCount >= 3) {
+    return consultationNudge;
+  }
+
+  return "Thanks for sharing that. I can help keep this simple and point you in the right direction. What happened, in one or two sentences?";
 }
 
 export function ChatWidget({ embedMode = false }: { embedMode?: boolean }) {
@@ -71,13 +141,7 @@ export function ChatWidget({ embedMode = false }: { embedMode?: boolean }) {
   const [streamingContent, setStreamingContent] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [hasSentMessage, setHasSentMessage] = useState(false);
-  const [demoMessages, setDemoMessages] = useState<Array<{
-    id: number;
-    conversationId: number;
-    role: "user" | "assistant";
-    content: string;
-    createdAt: string;
-  }>>([]);
+  const [demoMessages, setDemoMessages] = useState<DemoMessage[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -124,8 +188,9 @@ export function ChatWidget({ embedMode = false }: { embedMode?: boolean }) {
   const handleLeadSubmit = (data: { name: string; email: string; phone: string; legalIssue: string }) => {
     setLeadSubmitted(true);
     setLeadName(data.name.split(" ")[0]);
-    // Pre-fill the legal issue as first message after a brief delay
-    setTimeout(() => handleSendMessage(`I need help with ${data.legalIssue}.`), 400);
+    if (data.legalIssue) {
+      setTimeout(() => handleSendMessage(`I need help with ${data.legalIssue}.`), 400);
+    }
   };
 
   const handleSendMessage = async (text: string) => {
@@ -157,7 +222,7 @@ export function ChatWidget({ embedMode = false }: { embedMode?: boolean }) {
             id: Date.now() + 1,
             conversationId: activeConversationId,
             role: "assistant",
-            content: buildDemoResponse(messageContent),
+            content: buildDemoResponse(messageContent, old),
             createdAt: new Date().toISOString(),
           },
         ]);
@@ -225,7 +290,7 @@ export function ChatWidget({ embedMode = false }: { embedMode?: boolean }) {
           id: Date.now() + 1,
           conversationId: DEMO_CONVERSATION_ID,
           role: "assistant",
-          content: buildDemoResponse(messageContent),
+          content: buildDemoResponse(messageContent, old),
           createdAt: new Date().toISOString(),
         },
       ]);
