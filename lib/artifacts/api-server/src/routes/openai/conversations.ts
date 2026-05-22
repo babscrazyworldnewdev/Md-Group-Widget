@@ -283,6 +283,7 @@ async function sendTranscriptEmail(conversationId: number) {
 
   const html = `
     <div style="font-family: Inter, Arial, sans-serif; max-width: 640px; margin: 0 auto; padding: 24px; color: #111827;">
+      <p style="color: #2563eb; margin: 0 0 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;">NIVR Intake Alert</p>
       <h1 style="font-size: 20px; margin: 0 0 16px;">Updated Lead Conversation</h1>
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
         <tr><td style="padding: 6px 0; color: #6b7280;">Name</td><td style="padding: 6px 0;">${escapeHtml(lead.name)}</td></tr>
@@ -341,6 +342,7 @@ async function sendMessageEmail(
 
   const html = `
     <div style="font-family: Inter, Arial, sans-serif; max-width: 640px; margin: 0 auto; padding: 24px; color: #111827;">
+      <p style="color: #2563eb; margin: 0 0 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;">NIVR Intake Alert</p>
       <h1 style="font-size: 20px; margin: 0 0 8px;">New Chat Message</h1>
       <p style="margin: 0 0 18px; color: #6b7280;">Conversation #${conversationId} - ${label}</p>
       ${leadSummary}

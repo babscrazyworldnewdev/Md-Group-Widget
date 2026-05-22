@@ -66,10 +66,11 @@ async function sendLeadEmail(
   });
 
   const html = `
-  <div style="font-family: Inter, sans-serif; max-width: 640px; margin: 0 auto; background: #f9fafb; padding: 24px;">
-    <div style="background: #101828; border-radius: 12px 12px 0 0; padding: 24px 28px; display: flex; align-items: center; gap: 12px;">
+  <div style="font-family: Inter, Arial, sans-serif; max-width: 680px; margin: 0 auto; background: #f6f7fb; padding: 24px;">
+    <div style="background: #101828; border-radius: 14px 14px 0 0; padding: 24px 28px; display: flex; align-items: center; gap: 12px;">
       <div>
-        <h1 style="color: #fff; margin: 0; font-size: 20px; font-weight: 700;">New Legal Intake Lead</h1>
+        <p style="color: #93c5fd; margin: 0 0 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;">NIVR Intake Alert</p>
+        <h1 style="color: #fff; margin: 0; font-size: 21px; font-weight: 750;">New MD Law Group Lead</h1>
         <p style="color: #9ca3af; margin: 4px 0 0; font-size: 13px;">MD Law Group — Sarah Legal Intake Widget</p>
       </div>
     </div>
