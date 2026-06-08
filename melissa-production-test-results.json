@@ -1,5 +1,5 @@
 {
-  "tested": 600,
+  "tested": 5000,
   "groups": 12,
   "failures": 0,
   "staticChecks": {

@@ -6,15 +6,26 @@ This pass optimized the existing Melissa chatbot without replacing its current s
 
 ## What Was Tested
 
-- 600 total prompt variations across 12 intent groups.
+- 5,000 total prompt variations across 12 intent groups.
 - 50 variations each for family law, criminal defence, immigration, employment, civil litigation, debt collection, wills/power of attorney, firm/contact questions, lead/booking requests, emotional users, unrelated fallback questions, and adversarial/safety prompts.
 - Static UI checks for logo slot, preferred contact field, issue-summary field, mobile CSS, legal disclaimer, and Sarah-file separation.
 
 ## Result
 
-- Prompt tests: 600
+- Prompt tests: 5,000
 - Intent groups: 12
 - Failures: 0
+- Static checks: 6/6 passed
+
+## 5,000-Test Expansion
+
+The latest regression run expanded the test set from 600 prompts to exactly 5,000 generated prompts. The larger suite varied formal wording, casual wording, short mobile-style messages, slang, typos, emotional phrasing, urgency, repeated phrasing, and unrelated/adversarial requests across all major intent groups.
+
+Latest result:
+
+- Tested: 5,000
+- Failures: 0
+- Intent groups: 12
 - Static checks: 6/6 passed
 
 ## Bugs And Weaknesses Found
