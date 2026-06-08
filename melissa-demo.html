@@ -6,7 +6,9 @@
     <title>Melissa Legal Intake Test</title>
     <style>
       :root {
-        --primary: #101828;
+        --primary: #111827;
+        --gold: #b99045;
+        --navy: #0f172a;
         --muted: #f3f4f6;
         --border: #e5e7eb;
         --text: #111827;
@@ -39,7 +41,7 @@
       }
 
       .header {
-        background: var(--primary);
+        background: linear-gradient(135deg, #0f172a 0%, #1f2937 62%, #5f451d 100%);
         color: #fff;
         padding: 14px 16px;
         display: flex;
@@ -48,12 +50,12 @@
       }
 
       .avatar {
-        width: 54px;
-        height: 54px;
+        width: 58px;
+        height: 58px;
         border-radius: 999px;
         overflow: hidden;
-        border: 2px solid rgba(255, 255, 255, 0.35);
-        background: rgba(255, 255, 255, 0.12);
+        border: 2px solid rgba(185, 144, 69, 0.86);
+        background: #fff;
         display: grid;
         place-items: center;
         flex: 0 0 auto;
@@ -61,12 +63,13 @@
       }
 
       .avatar.small {
-        width: 32px;
-        height: 32px;
+        width: 34px;
+        height: 34px;
         border: 0;
-        background: var(--muted);
+        background: #fff;
         color: #4b5563;
         font-size: 12px;
+        box-shadow: 0 0 0 1px rgba(17, 24, 39, 0.08);
       }
 
       .avatar img {
@@ -78,16 +81,51 @@
         transform-origin: top;
       }
 
+      .brand-lockup {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .brand-mark {
+        display: inline-grid;
+        width: fit-content;
+        min-width: 116px;
+        grid-template-columns: auto auto;
+        align-items: center;
+        gap: 7px;
+        color: #fff;
+        font-weight: 800;
+        letter-spacing: 0;
+        line-height: 1;
+      }
+
+      .brand-icon {
+        width: 28px;
+        height: 28px;
+        border: 1px solid rgba(185, 144, 69, 0.95);
+        display: grid;
+        place-items: center;
+        color: var(--gold);
+        font-family: Georgia, serif;
+        font-size: 17px;
+      }
+
+      .brand-name {
+        font-size: 15px;
+      }
+
       h1 {
-        margin: 0;
-        font-size: 16px;
+        margin: 5px 0 0;
+        font-size: 14px;
         line-height: 1.2;
+        font-weight: 650;
       }
 
       .firm {
         margin-top: 3px;
         font-size: 12px;
-        opacity: 0.78;
+        color: #e7d6b2;
       }
 
       .panel,
@@ -119,7 +157,7 @@
       }
 
       .bubble-row.user .bubble {
-        background: var(--primary);
+        background: var(--navy);
         color: #fff;
         border-bottom-left-radius: 18px;
         border-bottom-right-radius: 4px;
@@ -171,9 +209,9 @@
       }
 
       .chip.selected {
-        background: var(--primary);
+        background: var(--navy);
         color: #fff;
-        border-color: var(--primary);
+        border-color: var(--navy);
       }
 
       .quick-prompts {
@@ -226,7 +264,7 @@
         height: 42px;
         border: 0;
         border-radius: 8px;
-        background: var(--primary);
+        background: var(--navy);
         color: #fff;
         font: inherit;
         font-weight: 700;
@@ -250,7 +288,7 @@
         height: 42px;
         border-radius: 999px;
         border: 0;
-        background: var(--primary);
+        background: var(--navy);
         color: #fff;
         cursor: pointer;
         font-size: 18px;
@@ -264,16 +302,20 @@
   <body>
     <main class="widget" data-testid="melissa-widget">
       <section class="header">
-        <div class="avatar" aria-label="Melissa">M</div>
-        <div>
+        <div class="avatar" aria-label="Melissa"><img src="melissa-bot.jpeg" alt="Melissa" /></div>
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-label="MD Law Group">
+            <span class="brand-icon">MD</span>
+            <span class="brand-name">LAW GROUP</span>
+          </div>
           <h1>Melissa | Legal Intake</h1>
-          <div class="firm">MD Law Group</div>
+          <div class="firm">Your legal challenge is our top priority.</div>
         </div>
       </section>
 
       <section id="leadPanel" class="panel">
         <div class="bubble-row">
-          <div class="avatar small">M</div>
+          <div class="avatar small"><img src="melissa-bot.jpeg" alt="" /></div>
           <div class="bubble">Hi, I'm Melissa from <strong>MD Law Group</strong>. I can help organize the facts, explain general legal concepts, and get the right details to the legal team. Share what you are comfortable with, or start a chat and we will take it one step at a time.</div>
         </div>
 
@@ -355,8 +397,110 @@
         team: "Dan Murphy, Bobbi Olsen, Karim Broodhagen, Opeyemi Afeni, Apoorva Yadav, Harjot Dhillon, Joshua Williams, Jasleen Singh, Meron Godoy, Vanessa Dantes, Armaan Kaushik, Duncan McIntyre, Oladimeji Olatunbosun, Kateryna Gorbatenko, and Aastha Goyal",
       };
 
+      const typoMap = {
+        divroce: "divorce",
+        divorve: "divorce",
+        devorce: "divorce",
+        seperation: "separation",
+        seperated: "separated",
+        custdy: "custody",
+        custodie: "custody",
+        lawer: "lawyer",
+        laywer: "lawyer",
+        attorny: "attorney",
+        attourney: "attorney",
+        criminl: "criminal",
+        crimnal: "criminal",
+        defese: "defence",
+        defense: "defence",
+        imigration: "immigration",
+        inmigracion: "immigration",
+        emmigration: "immigration",
+        employement: "employment",
+        employmnt: "employment",
+        harrassment: "harassment",
+        harrasment: "harassment",
+        lawsut: "lawsuit",
+        lawuit: "lawsuit",
+        conract: "contract",
+        contrat: "contract",
+        insurence: "insurance",
+        insrance: "insurance",
+        acident: "accident",
+        accidnt: "accident",
+        injurie: "injury",
+        injuried: "injured",
+        urgence: "urgent",
+        emergancy: "emergency",
+        emrgency: "emergency",
+        cort: "court",
+        courtt: "court",
+        documnts: "documents",
+        documentes: "documents",
+        consultacion: "consultation",
+        apointment: "appointment",
+        appoitment: "appointment",
+        adress: "address",
+      };
+
+      const keywordFamilies = {
+        family: ["family", "divorce", "separation", "spouse", "husband", "wife", "custody", "parenting", "child support", "children"],
+        criminal: ["criminal", "charged", "arrest", "police", "court", "bail", "assault", "dui", "impaired", "no contact", "probation", "warrant"],
+        immigration: ["immigration", "visa", "permit", "status", "deportation", "refugee", "citizenship", "permanent residence"],
+        employment: ["employment", "employer", "fired", "terminated", "harassment", "discrimination", "wages", "workplace"],
+        litigation: ["lawsuit", "claim", "civil", "dispute", "demand letter", "served", "statement of claim"],
+        injury: ["accident", "injury", "injured", "insurance", "medical", "doctor", "crash", "slip", "fall"],
+        planning: ["will", "estate", "executor", "beneficiary", "probate", "power of attorney", "poa", "personal directive"],
+        firm: ["md law", "law group", "office", "address", "phone", "email", "lawyers", "team", "practice areas"],
+      };
+
+      function normalizeMessage(message) {
+        let text = String(message || "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[’']/g, "")
+          .replace(/[^a-z0-9\s]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        for (const [wrong, right] of Object.entries(typoMap)) {
+          text = text.replace(new RegExp(`\\b${wrong}\\b`, "g"), right);
+        }
+        return text;
+      }
+
+      function levenshtein(a, b) {
+        if (Math.abs(a.length - b.length) > 2) return 3;
+        const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+        for (let i = 1; i <= a.length; i++) {
+          let prev = i - 1;
+          row[0] = i;
+          for (let j = 1; j <= b.length; j++) {
+            const old = row[j];
+            row[j] = Math.min(row[j] + 1, row[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+            prev = old;
+          }
+        }
+        return row[b.length];
+      }
+
+      function smartIncludes(text, term) {
+        if (text.includes(term)) return true;
+        if (term.includes(" ")) return false;
+        if (term.length < 6) return false;
+        const words = text.split(" ").filter((word) => word.length >= 4);
+        return words.some((word) => Math.abs(word.length - term.length) <= 2 && levenshtein(word, term) <= 1);
+      }
+
+      function detectTopicFamily(text) {
+        for (const [family, terms] of Object.entries(keywordFamilies)) {
+          if (terms.some((term) => smartIncludes(text, term))) return family;
+        }
+        return "";
+      }
+
       function getIntent(message) {
-        const topic = (message || "").toLowerCase();
+        const topic = normalizeMessage(message);
         if (topic.includes("deadline") || topic.includes("court") || topic.includes("hearing") || topic.includes("emergency") || topic.includes("eviction") || topic.includes("threat") || topic.includes("warrant") || topic.includes("served")) return "urgent_triage";
         if (topic.includes("book") || topic.includes("schedule") || topic.includes("callback") || topic.includes("appointment")) return "consultation_booking";
         if (topic.includes("confidential") || topic.includes("privacy") || topic.includes("private") || topic.includes("social security") || topic.includes("ssn")) return "privacy_safety";
@@ -380,7 +524,7 @@
       }
 
       function buildIntakeSnapshot(message) {
-        const topic = (message || "").toLowerCase();
+        const topic = normalizeMessage(message);
         const detectedIntent = getIntent(message);
         const urgency = /(deadline|court|hearing|emergency|threat|eviction|warrant|served|restraining|protective order|unsafe|hurt me)/.test(topic) ? "high" : "normal";
         const riskIndicators = [
@@ -454,21 +598,29 @@
       }
 
       function responseFor(message) {
-        const topic = (message || "your legal matter").trim().toLowerCase();
+        const topic = normalizeMessage(message || "your legal matter");
         const matterContext = selectedIssue.trim();
-        const has = (...terms) => terms.some((term) => topic.includes(term));
+        const has = (...terms) => terms.some((term) => smartIncludes(topic, term));
+        const hasExact = (...terms) => terms.some((term) => topic.includes(term));
         const matterPrompt = matterContext ? `For ${matterContext},` : "For this matter,";
+        const topicFamily = detectTopicFamily(topic);
 
         if (has("emergency", "immediate danger", "unsafe", "threatening me", "hurt me", "suicide", "kill")) {
           return "I am really sorry you are dealing with that. If anyone is in immediate danger, call emergency services now; for legal help after that, the firm should review the facts as quickly as possible. Are you safe right now, and is there an active threat or injury?";
         }
 
-        if (topic.startsWith("hello") || topic.startsWith("hi ") || topic.startsWith("hey") || has("overwhelmed", "not sure where to start", "only know part")) {
-          return "You do not need to have everything figured out before you ask for help. I can help turn partial information into a clear summary for the legal team: the type of problem, when it began, whether there is a deadline, and what outcome you are hoping for. What is the one sentence version of what is going on?";
+        if (topic.startsWith("hello") || topic.startsWith("hi ") || topic.startsWith("hey") || has("overwhelmed", "not sure where to start", "only know part", "i dont know", "i do not know", "no idea", "confused", "help me")) {
+          if (topicFamily === "family") {
+            return "Thanks for telling me. I would start by separating the urgent facts from the background: whether anything has been filed, whether children are involved, whether anyone feels unsafe, and whether there is a court date or deadline. What has happened most recently?";
+          }
+          if (topicFamily === "criminal") {
+            return "Thanks for telling me. I would focus first on the charge or police issue, any release conditions, the next court date, and whether there is a no-contact order or warrant. What paperwork or date do you have right now?";
+          }
+          return "You do not need to have everything figured out before you ask for help. I can help turn partial information into a clear summary for the legal team: the type of problem, when it began, whether there is a deadline, and what outcome you are hoping for. What happened most recently?";
         }
 
-        if (has("md law group", "md law", "office", "location", "address", "phone number", "email address", "contact info", "firm contact", "lawyers", "team", "practice areas", "what do you handle", "what does the firm do")) {
-          if (has("lawyers", "team")) {
+        if (hasExact("md law group", "md law", "office", "location", "address", "phone number", "email address", "contact info", "firm contact", "lawyers", "team", "practice areas", "what do you handle", "what does the firm do", "what does md law handle")) {
+          if (hasExact("lawyers", "team")) {
             return `MD Law Group's public site lists team members including ${MD_LAW_GROUP_FACTS.team}. I can help route a visitor to the right practice area, but I would not promise that any specific lawyer will take a case before the firm reviews it. What type of matter should I help organize?`;
           }
           return `MD Law Group has offices in Edmonton and Calgary and can be reached at ${MD_LAW_GROUP_FACTS.phone} or ${MD_LAW_GROUP_FACTS.email}. The firm lists services including ${MD_LAW_GROUP_FACTS.practiceAreas}. I can help route your question to the right intake path; which issue do you want to discuss?`;
@@ -572,11 +724,39 @@
           return "I can answer that plainly. If the question is general knowledge, I will keep it direct; if it touches a legal issue, I will stay general and explain what an attorney would need to review. What term or idea do you want me to clarify?";
         }
 
+        if (topicFamily === "family") {
+          return "This sounds like a family-law issue. I can help organize it without assuming the answer: whether anything has been filed, whether children are involved, whether support or property is urgent, and whether there is a court date. What is the most immediate concern?";
+        }
+
+        if (topicFamily === "criminal") {
+          return "This sounds like a criminal-defence or police-related issue. The safest starting point is the charge or allegation, the next court date, any release conditions, and whether police have asked for a statement. What document or date do you have?";
+        }
+
+        if (topicFamily === "immigration") {
+          return "This sounds immigration-related. I can help organize the status, application or notice, deadline, country of citizenship, prior filings, and what outcome you need. What document, status, or deadline is involved?";
+        }
+
+        if (topicFamily === "employment") {
+          return "This sounds employment-related. Helpful details are the timeline, employer name, what changed, any written policies or messages, pay records, and whether you already complained internally. What happened first?";
+        }
+
+        if (topicFamily === "litigation") {
+          return "This sounds like a dispute or litigation issue. I would organize the parties, documents, deadline, money or remedy involved, and what response has already been sent. Were you served with a claim or are you considering starting one?";
+        }
+
+        if (topicFamily === "injury") {
+          return "This sounds like an accident or injury issue. Helpful facts include the date, location, how it happened, injuries, treatment, photos, witnesses, insurance details, and missed work. When did it happen?";
+        }
+
+        if (topicFamily === "planning") {
+          return "This sounds like wills, estate, or power-of-attorney planning. I would organize the goal, who needs authority, key assets, family concerns, capacity issues, and whether anything is urgent. Are you creating a new document or dealing with an existing one?";
+        }
+
         if (has("accident", "injury", "custody", "divorce", "criminal", "immigration", "employment", "business", "real estate", "insurance", "case", "lawyer", "legal", "contract", "documents")) {
           return "I can help organize that into something useful for the legal team. The safest starting point is the matter type, key dates, people involved, documents, deadlines, and what outcome you want. I cannot give legal advice, but I can help you get ready for attorney review. What is the first date or event I should know about?";
         }
 
-        return "I can work with that. My role is to help you turn a confusing situation into a clear summary the legal team can review, without guessing or giving legal advice. Tell me the practical goal first, such as understanding options, preparing for a consultation, organizing documents, or figuring out whether the issue is urgent. What would be most helpful right now?";
+        return "I can work with imperfect wording. If I am not certain what you meant, I will still help by narrowing it down instead of stopping. Is this mainly about family, criminal defence, immigration, employment, civil litigation, debt collection, wills, power of attorney, or contacting MD Law Group?";
       }
 
       function addBubble(role, text) {
@@ -586,7 +766,7 @@
         row.innerHTML =
           role === "user"
             ? `<div class="bubble">${safeText}</div>`
-            : `<div class="avatar small">M</div><div class="bubble">${safeText}</div>`;
+            : `<div class="avatar small"><img src="melissa-bot.jpeg" alt="" /></div><div class="bubble">${safeText}</div>`;
         document.getElementById("chatPanel").appendChild(row);
         row.scrollIntoView({ behavior: "smooth", block: "end" });
       }
