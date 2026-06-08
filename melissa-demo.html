@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Melissa Legal Intake Test</title>
+    <style>
+      :root {
+        --primary: #101828;
+        --muted: #f3f4f6;
+        --border: #e5e7eb;
+        --text: #111827;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #f8fafc;
+        color: var(--text);
+        font-family: Inter, Arial, sans-serif;
+      }
+
+      .widget {
+        width: min(400px, calc(100vw - 24px));
+        height: min(640px, calc(100vh - 24px));
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        background: var(--primary);
+        color: #fff;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .avatar {
+        width: 54px;
+        height: 54px;
+        border-radius: 999px;
+        overflow: hidden;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.12);
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+        font-weight: 700;
+      }
+
+      .avatar.small {
+        width: 32px;
+        height: 32px;
+        border: 0;
+        background: var(--muted);
+        color: #4b5563;
+        font-size: 12px;
+      }
+
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+        transform: scale(1.22);
+        transform-origin: top;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.2;
+      }
+
+      .firm {
+        margin-top: 3px;
+        font-size: 12px;
+        opacity: 0.78;
+      }
+
+      .panel,
+      .messages {
+        flex: 1;
+        overflow: auto;
+        padding: 20px;
+      }
+
+      .bubble-row {
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+        margin-bottom: 14px;
+      }
+
+      .bubble {
+        max-width: 86%;
+        padding: 10px 14px;
+        border-radius: 18px;
+        border-bottom-left-radius: 4px;
+        background: var(--muted);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .bubble-row.user {
+        justify-content: flex-end;
+      }
+
+      .bubble-row.user .bubble {
+        background: var(--primary);
+        color: #fff;
+        border-bottom-left-radius: 18px;
+        border-bottom-right-radius: 4px;
+      }
+
+      .field-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 4px;
+        color: #6b7280;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      input {
+        width: 100%;
+        height: 38px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0 10px;
+        font: inherit;
+        font-size: 14px;
+      }
+
+      .field {
+        margin-bottom: 12px;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 6px 0 14px;
+      }
+
+      .chip {
+        border: 1px solid var(--border);
+        background: #fff;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .chip.selected {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+      }
+
+      .quick-prompts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 12px;
+      }
+
+      .quick {
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        color: #334155;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 650;
+        cursor: pointer;
+      }
+
+      .note {
+        margin: 10px 0 0;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .assist-bar {
+        border-top: 1px solid var(--border);
+        background: #f8fafc;
+        padding: 10px 12px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .assist-bar button {
+        min-height: 34px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #fff;
+        color: #334155;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button.primary {
+        width: 100%;
+        height: 42px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--primary);
+        color: #fff;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .composer {
+        border-top: 1px solid var(--border);
+        padding: 12px;
+        display: flex;
+        gap: 8px;
+      }
+
+      .composer input {
+        border-radius: 999px;
+        height: 42px;
+      }
+
+      .send {
+        width: 42px;
+        height: 42px;
+        border-radius: 999px;
+        border: 0;
+        background: var(--primary);
+        color: #fff;
+        cursor: pointer;
+        font-size: 18px;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="widget" data-testid="melissa-widget">
+      <section class="header">
+        <div class="avatar" aria-label="Melissa">M</div>
+        <div>
+          <h1>Melissa | Legal Intake</h1>
+          <div class="firm">MD Law Group</div>
+        </div>
+      </section>
+
+      <section id="leadPanel" class="panel">
+        <div class="bubble-row">
+          <div class="avatar small">M</div>
+          <div class="bubble">Hi, I'm Melissa from <strong>MD Law Group</strong>. I can help organize the facts, explain general legal concepts, and get the right details to the legal team. Share what you are comfortable with, or start a chat and we will take it one step at a time.</div>
+        </div>
+
+        <form id="leadForm" data-testid="lead-form">
+          <div class="field-grid">
+            <div class="field">
+              <label for="name">Name <span>(optional)</span></label>
+              <input id="name" data-testid="input-name" placeholder="Jane Smith" />
+            </div>
+            <div class="field">
+              <label for="phone">Phone <span>(optional)</span></label>
+              <input id="phone" data-testid="input-phone" placeholder="(555) 000-0000" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="email">Email <span>(optional)</span></label>
+            <input id="email" data-testid="input-email" placeholder="jane@example.com" />
+          </div>
+          <label>What can we help with? <span>(optional)</span></label>
+          <div class="chips" id="chips"></div>
+          <p class="note">Melissa can discuss general legal information and ordinary general knowledge, but an attorney must review your specific facts before legal advice can be given.</p>
+          <button class="primary" data-testid="button-start-chat" type="submit">Start Conversation</button>
+        </form>
+      </section>
+
+      <section id="chatPanel" class="messages hidden" data-testid="chat-panel"></section>
+      <section id="assistBar" class="assist-bar hidden" aria-label="Helpful actions">
+        <button type="button" data-fill="I need help preparing for a consultation.">Prep</button>
+        <button type="button" data-fill="This may be urgent. What information matters first?">Urgent</button>
+        <button type="button" data-fill="I have a general question, not sure where to start.">General</button>
+      </section>
+      <form id="composer" class="composer hidden">
+        <input id="messageInput" data-testid="input-message" placeholder="Type your legal question here..." />
+        <button class="send" data-testid="button-send" type="submit" aria-label="Send">›</button>
+      </form>
+    </main>
+
+    <script>
+      const issues = [
+        "Personal Injury",
+        "Car Accident",
+        "Family Law",
+        "Divorce",
+        "Child Custody",
+        "Criminal Defense",
+        "Immigration",
+        "Employment Issues",
+        "Business Law",
+        "Real Estate",
+        "Civil Litigation",
+        "Debt Collection",
+        "Domestic Violence",
+        "Wills",
+        "Power of Attorney",
+        "Other Legal Matter",
+        "Consultation Prep",
+        "General Question",
+      ];
+
+      const welcome =
+        "Hi, welcome to MD Law Group. I'm Melissa. I can help you understand the general legal landscape, organize the facts, and get the right details to the legal team. What would you like to talk through today?";
+
+      const quickPrompts = [
+        "What should I bring to a consultation?",
+        "Can you explain deadlines generally?",
+        "What if I have a court date?",
+        "How do I organize my documents?",
+        "What should I tell insurance?",
+        "I just have a general question.",
+      ];
+
+      let selectedIssue = "";
+      const MELISSA_BACKEND_URL = "";
+      const MD_LAW_GROUP_FACTS = {
+        phone: "(587) 520-1885",
+        email: "dan@mdlawgroup.ca",
+        offices: "Edmonton: Sunlife Place, 10123 99 St NW Suite 820, Edmonton, AB T5J 3H1. Calgary: Suite 700, 520 5th Avenue SW, Calgary, AB T2P 3R7.",
+        practiceAreas: "criminal defence, domestic violence, sex crimes, family law, family law mediation, civil litigation, debt collection, employment law, immigration law, wills, and power of attorney",
+        team: "Dan Murphy, Bobbi Olsen, Karim Broodhagen, Opeyemi Afeni, Apoorva Yadav, Harjot Dhillon, Joshua Williams, Jasleen Singh, Meron Godoy, Vanessa Dantes, Armaan Kaushik, Duncan McIntyre, Oladimeji Olatunbosun, Kateryna Gorbatenko, and Aastha Goyal",
+      };
+
+      function getIntent(message) {
+        const topic = (message || "").toLowerCase();
+        if (topic.includes("deadline") || topic.includes("court") || topic.includes("hearing") || topic.includes("emergency") || topic.includes("eviction") || topic.includes("threat") || topic.includes("warrant") || topic.includes("served")) return "urgent_triage";
+        if (topic.includes("book") || topic.includes("schedule") || topic.includes("callback") || topic.includes("appointment")) return "consultation_booking";
+        if (topic.includes("confidential") || topic.includes("privacy") || topic.includes("private") || topic.includes("social security") || topic.includes("ssn")) return "privacy_safety";
+        if (topic.includes("too expensive") || topic.includes("can't afford") || topic.includes("not ready") || topic.includes("not sure i need a lawyer")) return "lead_objection";
+        if (topic.includes("divorce") || topic.includes("spouse")) return "family_divorce";
+        if (topic.includes("custody") || topic.includes("child")) return "child_custody";
+        if (topic.includes("insurance") || topic.includes("accident") || topic.includes("injury") || topic.includes("medical")) return "personal_injury";
+        if (topic.includes("immigration") || topic.includes("visa") || topic.includes("green card")) return "immigration";
+        if (topic.includes("domestic violence") || topic.includes("domestic assault") || topic.includes("sex crime") || topic.includes("sexual assault")) return "criminal_defense";
+        if (topic.includes("charged") || topic.includes("criminal") || topic.includes("arrest")) return "criminal_defense";
+        if (topic.includes("employer") || topic.includes("employment") || topic.includes("fired")) return "employment";
+        if (topic.includes("civil litigation") || topic.includes("lawsuit") || topic.includes("statement of claim")) return "civil_litigation";
+        if (topic.includes("debt collection") || topic.includes("debt recovery") || topic.includes("owed money")) return "debt_collection";
+        if (topic.includes("will") || topic.includes("estate") || topic.includes("probate")) return "wills_estates";
+        if (topic.includes("power of attorney") || topic.includes("poa") || topic.includes("personal directive")) return "power_of_attorney";
+        if (topic.includes("contract") || topic.includes("business")) return "business";
+        if (topic.includes("landlord") || topic.includes("tenant") || topic.includes("property") || topic.includes("real estate")) return "real_estate";
+        if (topic.includes("consultation") || topic.includes("documents") || topic.includes("bring")) return "consultation_prep";
+        if (topic.includes("general") || topic.includes("not legal")) return "general_knowledge";
+        return selectedIssue ? selectedIssue.toLowerCase().replace(/\s+/g, "_") : "unclassified";
+      }
+
+      function buildIntakeSnapshot(message) {
+        const topic = (message || "").toLowerCase();
+        const detectedIntent = getIntent(message);
+        const urgency = /(deadline|court|hearing|emergency|threat|eviction|warrant|served|restraining|protective order|unsafe|hurt me)/.test(topic) ? "high" : "normal";
+        const riskIndicators = [
+          /(deadline|court|hearing|served|warrant)/.test(topic) && "deadline_or_court_date",
+          /(unsafe|threat|hurt me|emergency)/.test(topic) && "safety_concern",
+          /(child|custody|parenting time|visitation)/.test(topic) && "child_related_issue",
+          /(recorded statement|insurance adjuster|signed release)/.test(topic) && "insurance_communication",
+          /(deportation|uscis|visa|green card|status)/.test(topic) && "immigration_status_or_notice",
+        ].filter(Boolean);
+        const missingInformation = [
+          "exact_date_or_timeline",
+          "location",
+          "documents_or_notices",
+          "people_or_companies_involved",
+          "desired_outcome",
+        ];
+        return {
+          assistant: "Melissa",
+          firm: "MD Law Group",
+          selectedIssue: selectedIssue || "Not selected",
+          detectedIntent,
+          urgency,
+          priorityLevel: urgency === "high" ? "priority_review" : "standard_intake",
+          leadQuality: selectedIssue || detectedIntent !== "unclassified" ? "qualified_or_qualifying" : "needs_triage",
+          routingQueue: detectedIntent,
+          nextBestAction: urgency === "high" ? "prompt_firm_contact_or_emergency_guidance" : "collect_matter_type_timeline_documents_and_contact",
+          riskIndicators,
+          missingInformation,
+          consultationPreparationPackage: {
+            timeline: "requested",
+            keyDocuments: "requested",
+            deadlines: urgency === "high" ? "prioritize" : "ask_if_any",
+            evidenceInventory: "photos_messages_notices_reports_contracts_bills",
+          },
+          suggestedDataToCollect: [
+            "visitor_name",
+            "email",
+            "phone",
+            "matter_type",
+            "timeline",
+            "location",
+            "people_involved",
+            "documents_available",
+            "deadlines_or_court_dates",
+            "desired_outcome",
+            "prior_attorney_involvement",
+          ],
+          lastMessage: message,
+          capturedAt: new Date().toISOString(),
+        };
+      }
+
+      function sendBackendEvent(eventName, payload) {
+        if (!MELISSA_BACKEND_URL) return;
+        fetch(MELISSA_BACKEND_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ eventName, ...payload }),
+        }).catch(() => {
+          // Never block the visitor if the optional backend is unavailable.
+        });
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function responseFor(message) {
+        const topic = (message || "your legal matter").trim().toLowerCase();
+        const matterContext = selectedIssue.trim();
+        const has = (...terms) => terms.some((term) => topic.includes(term));
+        const matterPrompt = matterContext ? `For ${matterContext},` : "For this matter,";
+
+        if (has("emergency", "immediate danger", "unsafe", "threatening me", "hurt me", "suicide", "kill")) {
+          return "I am really sorry you are dealing with that. If anyone is in immediate danger, call emergency services now; for legal help after that, the firm should review the facts as quickly as possible. Are you safe right now, and is there an active threat or injury?";
+        }
+
+        if (topic.startsWith("hello") || topic.startsWith("hi ") || topic.startsWith("hey") || has("overwhelmed", "not sure where to start", "only know part")) {
+          return "You do not need to have everything figured out before you ask for help. I can help turn partial information into a clear summary for the legal team: the type of problem, when it began, whether there is a deadline, and what outcome you are hoping for. What is the one sentence version of what is going on?";
+        }
+
+        if (has("md law group", "md law", "office", "location", "address", "phone number", "email address", "contact info", "firm contact", "lawyers", "team", "practice areas", "what do you handle", "what does the firm do")) {
+          if (has("lawyers", "team")) {
+            return `MD Law Group's public site lists team members including ${MD_LAW_GROUP_FACTS.team}. I can help route a visitor to the right practice area, but I would not promise that any specific lawyer will take a case before the firm reviews it. What type of matter should I help organize?`;
+          }
+          return `MD Law Group has offices in Edmonton and Calgary and can be reached at ${MD_LAW_GROUP_FACTS.phone} or ${MD_LAW_GROUP_FACTS.email}. The firm lists services including ${MD_LAW_GROUP_FACTS.practiceAreas}. I can help route your question to the right intake path; which issue do you want to discuss?`;
+        }
+
+        if (has("confidential", "private", "privacy", "safe to share", "social security", "ssn", "bank account", "password")) {
+          return matterContext
+            ? `Privacy matters, especially in a ${matterContext} matter. Please avoid sharing Social Security numbers, banking credentials, passwords, or full account numbers here; the legal team can tell you what documents are needed through a safer intake process. Is there a deadline or document connected to this issue?`
+            : "Privacy matters, and you do not need to put highly sensitive identifiers in this chat. Please avoid sharing Social Security numbers, banking credentials, passwords, or full account numbers here; the legal team can tell you what documents are needed through a safer intake process. What type of matter are you asking about?";
+        }
+
+        if (has("book", "schedule", "appointment", "callback", "call me", "talk to someone", "speak to someone")) {
+          return matterContext
+            ? `I can help you get ready for a ${matterContext} consultation without turning this into a long form. The legal team will mainly need the best phone or email, any deadline or court date, and a one-line summary. Is there any urgent date the firm should know about?`
+            : "I can help you get ready for a consultation without turning this into a long form. The most useful routing details are your matter type, the best phone or email, any deadline or court date, and a one-line summary for the legal team. What kind of legal issue should the consultation be routed to?";
+        }
+
+        if (has("too expensive", "can't afford", "cannot afford", "not sure i need a lawyer", "not ready", "afraid", "scared to call", "don't want trouble", "do not want trouble")) {
+          return `That hesitation is understandable. You are not committing to anything by getting organized; the goal is to help the firm understand the issue, explain general options, and decide whether attorney review makes sense. ${matterPrompt} what is the biggest concern holding you back right now: cost, privacy, conflict, timing, or uncertainty?`;
+        }
+
+        if (has("sexual assault", "sex crime", "sexual offence", "sexual offense", "unwanted touching", "voyeurism")) {
+          return "Sexual offence allegations are extremely serious and fact-specific. MD Law Group lists sex crimes defence as a practice area; I can help organize the charge, dates, disclosure status, release terms, and court deadlines for attorney review without asking you to share unnecessary sensitive details here. Do you have a charge document or upcoming court date?";
+        }
+
+        if (has("domestic violence", "domestic assault", "intimate partner", "assault", "uttering threats", "choking", "strangulation")) {
+          return "Domestic violence or assault-related allegations can affect safety, release conditions, family arrangements, and criminal exposure. MD Law Group lists domestic violence defence as a practice area, but an attorney would need to review the charge, police paperwork, and any no-contact terms before you rely on next steps. Is there an active safety issue, court date, or release condition?";
+        }
+
+        if (has("criminal", "charged", "arrest", "dui", "probation", "no contact", "ticket", "citation", "complaint")) {
+          return "A criminal matter is worth handling promptly, especially if there is a court date, warrant, probation issue, or no-contact order. I can help gather intake details, but an attorney should review the charge and paperwork before any decisions are made. Do you have a citation, complaint, or court date yet?";
+        }
+
+        if (has("deadline", "court", "hearing", "served", "warrant", "eviction notice", "restraining", "protective order", "arraignment")) {
+          return "That sounds time-sensitive, so I would not treat it like an ordinary question. I can give general information, but an attorney should review the paperwork and dates promptly because deadlines can affect options. What is the exact date on the notice, order, or court paperwork?";
+        }
+
+        if (has("custody", "parenting time", "visitation", "child support", "my child", "kids", "other parent")) {
+          return "Custody questions can feel heavy, especially when routines or safety are involved. I cannot advise on what a court may do, but the legal team can review any existing order, upcoming court dates, the current schedule, and immediate concerns for the child. Is there already a custody or parenting-time order in place?";
+        }
+
+        if (has("cost", "fee", "free consultation", "pricing", "consultation cost", "how much is a consultation", "pay today", "pay for consultation")) {
+          return "Cost questions are completely fair. I cannot quote fees from here, but the next step is usually to share the matter type and basic facts so the firm can explain consultation options and any fee structure that applies. What kind of matter would you be calling about?";
+        }
+
+        if (has("case worth", "how much is my case worth", "how much is the case worth", "settlement", "value of my case", "guarantee", "will i win", "promise", "take my case", "accept my case")) {
+          return "I would be careful with anyone who gives a value or outcome without an attorney reviewing the evidence. Case value and likelihood of success usually depend on liability, damages, documents, deadlines, insurance, witnesses, and local law. What facts or documents do you already have that show what happened and how it affected you?";
+        }
+
+        if (has("recorded statement", "insurance adjuster", "insurance called", "claim adjuster", "insurance wants")) {
+          return "Insurance conversations can affect a claim, especially recorded statements. I cannot tell you what to say, but it is smart to save the claim number, adjuster name, letters, photos, bills, and any request they made so an attorney can review it. Has the insurer asked for a recorded statement or a signed release?";
+        }
+
+        if (has("accident", "crash", "rear ended", "hit me", "slip", "fall", "injured", "injury", "medical bills", "doctor", "treatment", "lost wages")) {
+          return "I am sorry that happened. For an injury matter, the legal team usually needs the date and location, how it happened, injuries, treatment, insurance information, photos, reports, witnesses, and missed work. I cannot evaluate the claim here, but I can help organize it. When did the incident happen?";
+        }
+
+        if (has("divorce", "separation", "spouse", "husband", "wife", "marriage", "moved money")) {
+          return "Thanks for telling me. For divorce matters, the most useful starting point is whether anything has already been filed, whether there are children involved, and whether there are urgent issues like support, property, safety, or a court date. I cannot give legal advice, but I can help organize the facts for an attorney review. Has anything been filed with the court yet?";
+        }
+
+        if (has("immigration", "visa", "green card", "deportation", "asylum", "uscis", "work permit", "status")) {
+          return "Immigration matters are very fact-specific, and dates or prior filings can change the analysis. General information is possible here, but an attorney should review your status history and documents before you rely on next steps. What status, application, notice, or deadline is involved?";
+        }
+
+        if (has("employment", "employer", "boss", "fired", "terminated", "retaliation", "discrimination", "harassment", "wages", "overtime")) {
+          return "That sounds frustrating, and employment issues often turn on timing and documentation. Useful details for the legal team include dates, who was involved, written policies, messages, pay records, complaints made, and what changed afterward. I cannot tell you whether a claim exists here, but I can help organize it. When did the workplace issue begin?";
+        }
+
+        if (has("business", "contract", "llc", "partner", "invoice", "breach", "client won't pay", "vendor")) {
+          return "For a business or contract dispute, the document trail matters. The legal team would usually want the agreement, invoices, payment history, messages, dates, and the outcome you want, such as payment, termination, or enforcement. Is there a written contract or mostly messages and invoices?";
+        }
+
+        if (has("civil litigation", "lawsuit", "sue", "served statement of claim", "statement of claim", "demand letter", "dispute")) {
+          return "Civil litigation usually turns on documents, deadlines, parties, damages, and the remedy being requested. MD Law Group lists civil litigation as a practice area, and the legal team would need to review the claim, demand letter, contract, evidence, and response deadline. What document or deadline is driving the dispute right now?";
+        }
+
+        if (has("debt collection", "debt recovery", "owed money", "unpaid debt", "collect a debt", "demand payment")) {
+          return "For debt collection or recovery, the useful starting point is the amount owed, who owes it, the agreement or invoice, payment history, demand letters, and whether a lawsuit or enforcement step is already underway. MD Law Group lists debt collection and recovery services, but an attorney should review the documents before legal action is chosen. Is the debt based on an invoice, contract, judgment, or something else?";
+        }
+
+        if (has("real estate", "property", "landlord", "tenant", "lease", "eviction", "deposit", "closing", "deed", "seller")) {
+          return "Property issues usually depend on documents and dates: the lease or deed, notices, payment history, photos, inspection notes, and any deadline. I can help organize the situation, but an attorney should review the actual papers. Is this about a lease, eviction, purchase, sale, or ownership dispute?";
+        }
+
+        if (has("will", "wills", "estate", "beneficiary", "executor", "probate")) {
+          return "MD Law Group lists wills as a practice area. For a will or estate-planning question, the legal team would usually need to know whether there is an existing will, who should make decisions, major assets, beneficiaries, and any urgency around illness, travel, or a family dispute. Is this about creating a will, updating one, or dealing with an estate after someone passed away?";
+        }
+
+        if (has("power of attorney", "poa", "personal directive", "capacity", "decision maker")) {
+          return "MD Law Group lists power of attorney as a practice area. These questions often depend on capacity, who needs authority, whether the document is for property or personal decisions, and whether there is an urgent banking, medical, or family issue. Is the goal to create a new document or deal with a problem using an existing one?";
+        }
+
+        if (has("consultation", "bring", "documents", "prepare", "talking to the firm", "long form", "only know part", "photos", "screenshots", "send photos")) {
+          return matterContext
+            ? `You do not need a perfect packet before reaching out about ${matterContext}. The most useful items for the legal team are a short timeline, names, key documents, photos or messages, deadlines, and what result you are hoping for. What document, date, or message feels most important right now?`
+            : "You do not need a perfect packet before reaching out. The most useful items for the legal team are a short timeline, names, key documents, photos or messages, deadlines, and what result you are hoping for. If you only know part of the story, start there; an attorney can decide what else matters after review. Which area is closest: family, injury, criminal, immigration, employment, business, real estate, or something else?";
+        }
+
+        if (has("not legal", "general question", "what does", "explain", "define", "concise", "timeline", "statute of limitations")) {
+          return "I can answer that plainly. If the question is general knowledge, I will keep it direct; if it touches a legal issue, I will stay general and explain what an attorney would need to review. What term or idea do you want me to clarify?";
+        }
+
+        if (has("accident", "injury", "custody", "divorce", "criminal", "immigration", "employment", "business", "real estate", "insurance", "case", "lawyer", "legal", "contract", "documents")) {
+          return "I can help organize that into something useful for the legal team. The safest starting point is the matter type, key dates, people involved, documents, deadlines, and what outcome you want. I cannot give legal advice, but I can help you get ready for attorney review. What is the first date or event I should know about?";
+        }
+
+        return "I can work with that. My role is to help you turn a confusing situation into a clear summary the legal team can review, without guessing or giving legal advice. Tell me the practical goal first, such as understanding options, preparing for a consultation, organizing documents, or figuring out whether the issue is urgent. What would be most helpful right now?";
+      }
+
+      function addBubble(role, text) {
+        const row = document.createElement("div");
+        row.className = `bubble-row ${role === "user" ? "user" : ""}`;
+        const safeText = escapeHtml(text);
+        row.innerHTML =
+          role === "user"
+            ? `<div class="bubble">${safeText}</div>`
+            : `<div class="avatar small">M</div><div class="bubble">${safeText}</div>`;
+        document.getElementById("chatPanel").appendChild(row);
+        row.scrollIntoView({ behavior: "smooth", block: "end" });
+      }
+
+      const chipContainer = document.getElementById("chips");
+      for (const issue of issues) {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip";
+        chip.dataset.testid = `chip-${issue.toLowerCase().replace(/\s+/g, "-")}`;
+        chip.textContent = issue;
+        chip.addEventListener("click", () => {
+          selectedIssue = selectedIssue === issue ? "" : issue;
+          document.querySelectorAll(".chip").forEach((node) => node.classList.remove("selected"));
+          if (selectedIssue) chip.classList.add("selected");
+        });
+        chipContainer.appendChild(chip);
+      }
+
+      document.getElementById("leadForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const firstName = document.getElementById("name").value.trim().split(" ")[0];
+        sendBackendEvent("lead_started", {
+          name: document.getElementById("name").value.trim(),
+          phone: document.getElementById("phone").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          snapshot: buildIntakeSnapshot(selectedIssue),
+        });
+        document.getElementById("leadPanel").classList.add("hidden");
+        document.getElementById("chatPanel").classList.remove("hidden");
+        document.getElementById("assistBar").classList.remove("hidden");
+        document.getElementById("composer").classList.remove("hidden");
+        addBubble("assistant", `${firstName ? `Hi ${firstName}. ` : ""}${welcome.replace("Hi, ", "")}`);
+        addQuickPrompts();
+        if (selectedIssue) {
+          addBubble("user", `I need help with ${selectedIssue}.`);
+          addBubble("assistant", responseFor(selectedIssue));
+        }
+      });
+
+      document.getElementById("composer").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const input = document.getElementById("messageInput");
+        const value = input.value.trim();
+        if (!value) return;
+        input.value = "";
+        addBubble("user", value);
+        sendBackendEvent("chat_message", {
+          role: "user",
+          message: value,
+          snapshot: buildIntakeSnapshot(value),
+        });
+        window.setTimeout(() => addBubble("assistant", responseFor(value)), 80);
+      });
+
+      function addQuickPrompts() {
+        const wrapper = document.createElement("div");
+        wrapper.className = "quick-prompts";
+        for (const prompt of quickPrompts) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "quick";
+          button.textContent = prompt;
+          button.addEventListener("click", () => {
+            document.getElementById("messageInput").value = prompt;
+            document.getElementById("composer").dispatchEvent(new Event("submit", { cancelable: true }));
+          });
+          wrapper.appendChild(button);
+        }
+        document.getElementById("chatPanel").appendChild(wrapper);
+      }
+
+      document.querySelectorAll("[data-fill]").forEach((button) => {
+        button.addEventListener("click", () => {
+          document.getElementById("messageInput").value = button.dataset.fill;
+          document.getElementById("composer").dispatchEvent(new Event("submit", { cancelable: true }));
+        });
+      });
+    </script>
+  </body>
+</html>
