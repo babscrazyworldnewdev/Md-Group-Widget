@@ -8,14 +8,14 @@ This pass optimized the existing Melissa chatbot without replacing its current s
 
 - 10,000 total prompt variations across 12 intent groups.
 - 50 variations each for family law, criminal defence, immigration, employment, civil litigation, debt collection, wills/power of attorney, firm/contact questions, lead/booking requests, emotional users, unrelated fallback questions, and adversarial/safety prompts.
-- Static UI checks for logo slot, preferred contact field, issue-summary field, mobile CSS, legal disclaimer, and Sarah-file separation.
+- Static UI checks for logo slot, preferred contact field, issue-summary field, mobile CSS, legal disclaimer, Sarah-file separation, and awkward-phrase cleanup.
 
 ## Result
 
 - Prompt tests: 10,000
 - Intent groups: 12
 - Failures: 0
-- Static checks: 6/6 passed
+- Static checks: 7/7 passed
 
 ## 10,000-Test Expansion
 
@@ -26,7 +26,15 @@ Latest result:
 - Tested: 10,000
 - Failures: 0
 - Intent groups: 12
-- Static checks: 6/6 passed
+- Static checks: 7/7 passed
+
+## Latest Quality Correction
+
+- Reworked the fallback MD Law Group wordmark so it is closer to the official website presentation: clean text, dark background, gold rule, and no invented icon.
+- Kept the real-logo slot intact: uploading `md-law-logo.png` will still replace the fallback without distortion.
+- Replaced stiff or non-local wording such as "attorney review," "legal landscape," and "imperfect wording."
+- Improved grammar and made answers sound more direct, warm, and professionally Canadian.
+- Added a static grammar guardrail to catch those awkward phrases in future test runs.
 
 ## Bugs And Weaknesses Found
 
