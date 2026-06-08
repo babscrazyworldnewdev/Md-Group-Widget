@@ -88,31 +88,39 @@
       }
 
       .brand-mark {
-        display: inline-grid;
+        display: block;
         width: fit-content;
-        min-width: 116px;
-        grid-template-columns: auto auto;
-        align-items: center;
-        gap: 7px;
         color: #fff;
-        font-weight: 800;
+        font-weight: 750;
         letter-spacing: 0;
         line-height: 1;
       }
 
-      .brand-icon {
-        width: 28px;
-        height: 28px;
-        border: 1px solid rgba(185, 144, 69, 0.95);
-        display: grid;
-        place-items: center;
-        color: var(--gold);
-        font-family: Georgia, serif;
-        font-size: 17px;
+      .brand-name {
+        display: block;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 21px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
       }
 
-      .brand-name {
-        font-size: 15px;
+      .brand-rule {
+        display: block;
+        width: 100%;
+        height: 1px;
+        margin: 5px 0 4px;
+        background: linear-gradient(90deg, var(--gold), rgba(185, 144, 69, 0.1));
+      }
+
+      .brand-subtitle {
+        display: block;
+        color: #e7d6b2;
+        font-size: 10px;
+        font-weight: 650;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       }
 
       .brand-logo {
@@ -363,8 +371,9 @@
         <div class="brand-lockup">
           <img id="firmLogo" class="brand-logo is-hidden" src="md-law-logo.png" alt="MD Law Group" />
           <div id="firmLogoFallback" class="brand-mark" aria-label="MD Law Group">
-            <span class="brand-icon">MD</span>
-            <span class="brand-name">LAW GROUP</span>
+            <span class="brand-name">MD LAW GROUP</span>
+            <span class="brand-rule"></span>
+            <span class="brand-subtitle">Edmonton & Calgary</span>
           </div>
           <h1>Melissa | Legal Intake</h1>
           <div class="firm">Your legal challenge is our top priority.</div>
@@ -374,7 +383,7 @@
       <section id="leadPanel" class="panel">
         <div class="bubble-row">
           <div class="avatar small"><img src="melissa-bot.jpeg" alt="" /></div>
-          <div class="bubble">Hi, I'm Melissa from <strong>MD Law Group</strong>. I can help organize the facts, explain general legal concepts, and get the right details to the legal team. Share what you are comfortable with, or start a chat and we will take it one step at a time.</div>
+          <div class="bubble">Hi, I'm Melissa from <strong>MD Law Group</strong>. I can help you organize what happened, identify the right practice area, and prepare the key details for the legal team. Share as much or as little as you are comfortable with.</div>
         </div>
 
         <form id="leadForm" data-testid="lead-form">
@@ -407,8 +416,8 @@
           </div>
           <label>What can we help with? <span>(optional)</span></label>
           <div class="chips" id="chips"></div>
-          <p class="trust-note">Melissa is an intake assistant, not a lawyer. She provides general information and helps organize details for MD Law Group; a lawyer must review your facts before legal advice is given.</p>
-          <p class="note">Melissa can discuss general legal information and ordinary general knowledge, but an attorney must review your specific facts before legal advice can be given.</p>
+          <p class="trust-note">Melissa is an intake assistant, not a lawyer. She can provide general information and help organize details for MD Law Group, but a lawyer must review your specific facts before legal advice is given.</p>
+          <p class="note">You can start with a short summary. Melissa will ask only for the details that help the firm understand the issue.</p>
           <button class="primary" data-testid="button-start-chat" type="submit">Start Conversation</button>
         </form>
       </section>
@@ -448,7 +457,7 @@
       ];
 
       const welcome =
-        "Hi, welcome to MD Law Group. I'm Melissa. I can help you understand the general legal landscape, organize the facts, and get the right details to the legal team. What would you like to talk through today?";
+        "Hi, welcome to MD Law Group. I'm Melissa. I can help you organize what happened, identify the right practice area, and prepare the key details for the legal team. What would you like help with today?";
 
       const quickPrompts = [
         "What should I bring to a consultation?",
@@ -497,8 +506,8 @@
         custodie: "custody",
         lawer: "lawyer",
         laywer: "lawyer",
-        attorny: "attorney",
-        attourney: "attorney",
+        attorny: "lawyer",
+        attourney: "lawyer",
         criminl: "criminal",
         crimnal: "criminal",
         defese: "defence",
@@ -725,7 +734,7 @@
             "documents_available",
             "deadlines_or_court_dates",
             "desired_outcome",
-            "prior_attorney_involvement",
+            "prior_lawyer_involvement",
           ],
           lastMessage: message,
           capturedAt: new Date().toISOString(),
@@ -765,11 +774,11 @@
         if (conversationState.facts.repeatedMessage) {
           return rememberedMatter
             ? `I hear you. I have this noted as ${rememberedMatter}. To move this forward, the most useful next detail is either the deadline, the document you received, or the result you want from the firm. Which one should we start with?`
-            : "I hear you. To avoid going in circles, I will narrow this down: is the issue mainly family, criminal defence, immigration, employment, civil litigation, debt collection, wills, power of attorney, or contacting MD Law Group?";
+            : "I hear you. Let us narrow it down quickly: is this mainly family law, criminal defence, immigration, employment, civil litigation, debt collection, wills, power of attorney, or contacting MD Law Group?";
         }
 
         if (has("stop asking", "just answer", "hurry", "quick answer", "too many questions", "annoying", "useless", "frustrated")) {
-          return `Fair. Short version: I can give general information and organize the key facts, but I cannot give legal advice. ${rememberedMatter ? `For ${rememberedMatter}, ` : ""}the fastest useful next step is to identify any deadline and the main document or event. What is the deadline, if any?`;
+          return `Fair. Short version: I can share general information and organize the key facts, but I cannot give legal advice. ${rememberedMatter ? `For ${rememberedMatter}, ` : ""}the fastest useful next step is to identify any deadline and the main document or event. What deadline, if any, should the firm know about?`;
         }
 
         if (has("hide documents", "destroy evidence", "delete messages", "lie in court", "fake statement", "false statement", "threaten them", "hurt them", "avoid police", "skip court")) {
@@ -790,17 +799,17 @@
 
         if (topic.startsWith("hello") || topic.startsWith("hi ") || topic.startsWith("hey") || has("overwhelmed", "not sure where to start", "only know part", "i dont know", "i do not know", "no idea", "confused", "help me")) {
           if (topicFamily === "family") {
-            return `${leadIn ? `${leadIn} ` : ""}Thanks for telling me. I would start by separating the urgent facts from the background: whether anything has been filed, whether children are involved, whether anyone feels unsafe, and whether there is a court date or deadline. ${nextQuestion("family_recent", "What has happened most recently?", "What is the deadline, document, or concern that feels most urgent right now?")}`;
+            return `${leadIn ? `${leadIn} ` : ""}Thanks for telling me. The first step is to separate urgent facts from background details: whether anything has been filed, whether children are involved, whether anyone feels unsafe, and whether there is a court date or deadline. ${nextQuestion("family_recent", "What happened most recently?", "What deadline, document, or concern feels most urgent right now?")}`;
           }
           if (topicFamily === "criminal") {
-            return `${leadIn ? `${leadIn} ` : ""}Thanks for telling me. I would focus first on the charge or police issue, any release conditions, the next court date, and whether there is a no-contact order or warrant. ${nextQuestion("criminal_paperwork", "What paperwork or date do you have right now?", "What condition, charge, or court date should the legal team notice first?")}`;
+            return `${leadIn ? `${leadIn} ` : ""}Thanks for telling me. The key details are the charge or police issue, any release conditions, the next court date, and whether there is a no-contact order or warrant. ${nextQuestion("criminal_paperwork", "What paperwork or date do you have right now?", "What condition, charge, or court date should the legal team notice first?")}`;
           }
           return `${leadIn ? `${leadIn} ` : ""}You do not need to have everything figured out before you ask for help. I can help turn partial information into a clear summary for the legal team: the type of problem, when it began, whether there is a deadline, and what outcome you are hoping for. ${nextQuestion("recent_event", "What happened most recently?", "What result are you hoping the firm can help you reach?")}`;
         }
 
         if (hasExact("md law group", "md law", "office", "location", "address", "phone number", "email address", "contact info", "firm contact", "lawyers", "team", "practice areas", "what do you handle", "what does the firm do", "what does md law handle")) {
           if (hasExact("lawyers", "team")) {
-            return `MD Law Group's public site lists team members including ${MD_LAW_GROUP_FACTS.team}. I can help route a visitor to the right practice area, but I would not promise that any specific lawyer will take a case before the firm reviews it. What type of matter should I help organize?`;
+            return `MD Law Group's public site lists team members including ${MD_LAW_GROUP_FACTS.team}. I can help point you toward the right practice area, but the firm would need to review the details before confirming who can assist. What legal issue should I help route?`;
           }
           return `MD Law Group has offices in Edmonton and Calgary and can be reached at ${MD_LAW_GROUP_FACTS.phone} or ${MD_LAW_GROUP_FACTS.email}. The firm lists services including ${MD_LAW_GROUP_FACTS.practiceAreas}. I can help route your question to the right intake path; which issue do you want to discuss?`;
         }
@@ -818,23 +827,23 @@
         }
 
         if (has("too expensive", "can't afford", "cannot afford", "not sure i need a lawyer", "not ready", "afraid", "scared to call", "don't want trouble", "do not want trouble")) {
-          return `That hesitation is understandable. You are not committing to anything by getting organized; the goal is to help the firm understand the issue, explain general options, and decide whether attorney review makes sense. ${matterPrompt} what is the biggest concern holding you back right now: cost, privacy, conflict, timing, or uncertainty?`;
+          return `That hesitation is understandable. You are not committing to anything by getting organized; the goal is to help the firm understand the issue, explain general options, and decide whether lawyer review makes sense. ${matterPrompt} what is the biggest concern holding you back right now: cost, privacy, conflict, timing, or uncertainty?`;
         }
 
         if (has("sexual assault", "sex crime", "sexual offence", "sexual offense", "unwanted touching", "voyeurism")) {
-          return "Sexual offence allegations are extremely serious and fact-specific. MD Law Group lists sex crimes defence as a practice area; I can help organize the charge, dates, disclosure status, release terms, and court deadlines for attorney review without asking you to share unnecessary sensitive details here. Do you have a charge document or upcoming court date?";
+          return "Sexual offence allegations are serious and fact-specific. MD Law Group lists sex crimes defence as a practice area; I can help organize the charge, dates, disclosure status, release terms, and court deadlines for lawyer review without asking you to share unnecessary sensitive details here. Do you have a charge document or upcoming court date?";
         }
 
         if (has("domestic violence", "domestic assault", "intimate partner", "partner assault", "spousal assault", "uttering threats", "choking", "strangulation")) {
-          return "Domestic violence or assault-related allegations can affect safety, release conditions, family arrangements, and criminal exposure. MD Law Group lists domestic violence defence as a practice area, but an attorney would need to review the charge, police paperwork, and any no-contact terms before you rely on next steps. Is there an active safety issue, court date, or release condition?";
+          return "Domestic violence allegations can affect safety, release conditions, family arrangements, and criminal exposure. MD Law Group lists domestic violence defence as a practice area, but a lawyer would need to review the charge, police paperwork, and any no-contact terms before you rely on next steps. Is there an active safety issue, court date, or release condition?";
         }
 
         if (has("criminal", "charged", "arrest", "assault", "dui", "probation", "no contact", "ticket", "citation", "complaint")) {
-          return "A criminal matter is worth handling promptly, especially if there is a court date, warrant, probation issue, or no-contact order. I can help gather intake details, but an attorney should review the charge and paperwork before any decisions are made. Do you have a citation, complaint, or court date yet?";
+          return "A criminal matter is worth handling promptly, especially if there is a court date, warrant, probation issue, or no-contact order. I can help gather intake details, but a lawyer should review the charge and paperwork before any decisions are made. Do you have a citation, complaint, or court date yet?";
         }
 
         if (has("deadline", "court", "hearing", "served", "warrant", "eviction notice", "restraining", "protective order", "arraignment")) {
-          return "That sounds time-sensitive, so I would not treat it like an ordinary question. I can give general information, but an attorney should review the paperwork and dates promptly because deadlines can affect options. What is the exact date on the notice, order, or court paperwork?";
+          return "That sounds time-sensitive, so I would not treat it like an ordinary question. I can share general information, but a lawyer should review the paperwork and dates promptly because deadlines can affect options. What is the exact date on the notice, order, or court paperwork?";
         }
 
         if (has("custody", "parenting time", "visitation", "child support", "my child", "kids", "other parent")) {
@@ -846,11 +855,11 @@
         }
 
         if (has("case worth", "how much is my case worth", "how much is the case worth", "settlement", "value of my case", "guarantee", "will i win", "promise", "take my case", "accept my case")) {
-          return "I would be careful with anyone who gives a value or outcome without an attorney reviewing the evidence. Case value and likelihood of success usually depend on liability, damages, documents, deadlines, insurance, witnesses, and local law. What facts or documents do you already have that show what happened and how it affected you?";
+          return "Be careful with anyone who gives a value or outcome without reviewing the evidence. Case value and likelihood of success usually depend on liability, damages, documents, deadlines, insurance, witnesses, and local law. What facts or documents show what happened and how it affected you?";
         }
 
         if (has("recorded statement", "insurance adjuster", "insurance called", "claim adjuster", "insurance wants")) {
-          return "Insurance conversations can affect a claim, especially recorded statements. I cannot tell you what to say, but it is smart to save the claim number, adjuster name, letters, photos, bills, and any request they made so an attorney can review it. Has the insurer asked for a recorded statement or a signed release?";
+          return "Insurance conversations can affect a claim, especially recorded statements. I cannot tell you what to say, but it is smart to save the claim number, adjuster name, letters, photos, bills, and any request they made so a lawyer can review it. Has the insurer asked for a recorded statement or a signed release?";
         }
 
         if (has("accident", "crash", "rear ended", "hit me", "slip", "fall", "injured", "injury", "medical bills", "doctor", "treatment", "lost wages")) {
@@ -858,11 +867,11 @@
         }
 
         if (has("divorce", "separation", "spouse", "husband", "wife", "marriage", "moved money")) {
-          return `${leadIn ? `${leadIn} ` : ""}Thanks for telling me. For divorce matters, the most useful starting point is whether anything has already been filed, whether there are children involved, and whether there are urgent issues like support, property, safety, or a court date. I cannot give legal advice, but I can help organize the facts for attorney review. ${nextQuestion("divorce_filed", "Has anything been filed with the court yet?", "What changed most recently: separation, filing, children, money, property, or safety?")}`;
+          return `${leadIn ? `${leadIn} ` : ""}Thanks for telling me. For divorce matters, the most useful starting point is whether anything has already been filed, whether children are involved, and whether there are urgent issues like support, property, safety, or a court date. I cannot give legal advice, but I can help organize the facts for lawyer review. ${nextQuestion("divorce_filed", "Has anything been filed with the court yet?", "What changed most recently: separation, filing, children, money, property, or safety?")}`;
         }
 
         if (has("immigration", "visa", "green card", "deportation", "asylum", "uscis", "work permit", "status")) {
-          return "Immigration matters are very fact-specific, and dates or prior filings can change the analysis. General information is possible here, but an attorney should review your status history and documents before you rely on next steps. What status, application, notice, or deadline is involved?";
+          return "Immigration matters are very fact-specific, and dates or prior filings can change the analysis. General information is possible here, but a lawyer should review your status history and documents before you rely on next steps. What status, application, notice, or deadline is involved?";
         }
 
         if (has("employment", "employer", "boss", "fired", "terminated", "retaliation", "discrimination", "harassment", "wages", "overtime")) {
@@ -878,11 +887,11 @@
         }
 
         if (has("debt collection", "debt recovery", "owed money", "unpaid debt", "collect a debt", "demand payment")) {
-          return "For debt collection or recovery, the useful starting point is the amount owed, who owes it, the agreement or invoice, payment history, demand letters, and whether a lawsuit or enforcement step is already underway. MD Law Group lists debt collection and recovery services, but an attorney should review the documents before legal action is chosen. Is the debt based on an invoice, contract, judgment, or something else?";
+          return "For debt collection or recovery, the useful starting point is the amount owed, who owes it, the agreement or invoice, payment history, demand letters, and whether a lawsuit or enforcement step is already underway. MD Law Group lists debt collection and recovery services, but a lawyer should review the documents before legal action is chosen. Is the debt based on an invoice, contract, judgment, or something else?";
         }
 
         if (has("real estate", "property", "landlord", "tenant", "lease", "eviction", "deposit", "closing", "deed", "seller")) {
-          return "Property issues usually depend on documents and dates: the lease or deed, notices, payment history, photos, inspection notes, and any deadline. I can help organize the situation, but an attorney should review the actual papers. Is this about a lease, eviction, purchase, sale, or ownership dispute?";
+          return "Property issues usually depend on documents and dates: the lease or deed, notices, payment history, photos, inspection notes, and any deadline. I can help organize the situation, but a lawyer should review the actual papers. Is this about a lease, eviction, purchase, sale, or ownership dispute?";
         }
 
         if (has("will", "wills", "estate", "beneficiary", "executor", "probate")) {
@@ -896,11 +905,11 @@
         if (has("consultation", "bring", "documents", "prepare", "talking to the firm", "long form", "only know part", "photos", "screenshots", "send photos")) {
           return matterContext
             ? `You do not need a perfect packet before reaching out about ${matterContext}. The most useful items for the legal team are a short timeline, names, key documents, photos or messages, deadlines, and what result you are hoping for. What document, date, or message feels most important right now?`
-            : "You do not need a perfect packet before reaching out. The most useful items for the legal team are a short timeline, names, key documents, photos or messages, deadlines, and what result you are hoping for. If you only know part of the story, start there; an attorney can decide what else matters after review. Which area is closest: family, injury, criminal, immigration, employment, business, real estate, or something else?";
+            : "You do not need a perfect packet before reaching out. The most useful items for the legal team are a short timeline, names, key documents, photos or messages, deadlines, and what result you are hoping for. If you only know part of the story, start there; a lawyer can decide what else matters after review. Which area is closest: family, injury, criminal, immigration, employment, business, real estate, or something else?";
         }
 
         if (has("not legal", "general question", "what does", "explain", "define", "concise", "timeline", "statute of limitations")) {
-          return "I can answer that plainly. If the question is general knowledge, I will keep it direct; if it touches a legal issue, I will stay general and explain what an attorney would need to review. What term or idea do you want me to clarify?";
+          return "I can keep this simple. If it is general knowledge, I will answer directly; if it touches a legal issue, I will keep it general and explain what a lawyer would need to review. What term or idea do you want clarified?";
         }
 
         if (has("weather", "joke", "recipe", "sports", "movie", "song", "capital of", "math", "homework")) {
@@ -924,7 +933,7 @@
         }
 
         if (topicFamily === "litigation") {
-          return "This sounds like a dispute or litigation issue. I would organize the parties, documents, deadline, money or remedy involved, and what response has already been sent. Were you served with a claim or are you considering starting one?";
+          return "This sounds like a dispute or litigation issue. Helpful details include the parties, documents, deadline, money or remedy involved, and what response has already been sent. Were you served with a claim or are you considering starting one?";
         }
 
         if (topicFamily === "injury") {
@@ -932,14 +941,14 @@
         }
 
         if (topicFamily === "planning") {
-          return "This sounds like wills, estate, or power-of-attorney planning. I would organize the goal, who needs authority, key assets, family concerns, capacity issues, and whether anything is urgent. Are you creating a new document or dealing with an existing one?";
+          return "This sounds like wills, estate, or power-of-attorney planning. Helpful details include the goal, who needs authority, key assets, family concerns, capacity issues, and whether anything is urgent. Are you creating a new document or dealing with an existing one?";
         }
 
         if (has("accident", "injury", "custody", "divorce", "criminal", "immigration", "employment", "business", "real estate", "insurance", "case", "lawyer", "legal", "contract", "documents")) {
-          return "I can help organize that into something useful for the legal team. The safest starting point is the matter type, key dates, people involved, documents, deadlines, and what outcome you want. I cannot give legal advice, but I can help you get ready for attorney review. What is the first date or event I should know about?";
+          return "I can help organize that into something useful for the legal team. The safest starting point is the matter type, key dates, people involved, documents, deadlines, and what outcome you want. I cannot give legal advice, but I can help you get ready for lawyer review. What is the first date or event I should know about?";
         }
 
-        return "I can work with imperfect wording. If I am not certain what you meant, I will still help by narrowing it down instead of stopping. Is this mainly about family, criminal defence, immigration, employment, civil litigation, debt collection, wills, power of attorney, or contacting MD Law Group?";
+        return "I can help narrow this down. Is this mainly about family law, criminal defence, immigration, employment, civil litigation, debt collection, wills, power of attorney, or contacting MD Law Group?";
       }
 
       function addBubble(role, text) {

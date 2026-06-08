@@ -8,38 +8,39 @@
     "issueSummary": true,
     "mobileCss": true,
     "sarahSafe": true,
-    "disclaimer": true
+    "disclaimer": true,
+    "noAwkwardPhrases": true
   },
   "examples": [
     {
       "intent": "family",
       "prompt": "I need a divorce",
-      "answer": "Thanks for telling me. For divorce matters, the most useful starting point is whether anything has already been filed, whether there are children involved, and whether there are urgent issues like support, property, safety, or a court date. I cannot give legal advice, but I can help organize the facts for attorney review. Has anything been filed with the court yet?"
+      "answer": "Thanks for telling me. For divorce matters, the most useful starting point is whether anything has already been filed, whether children are involved, and whether there are urgent issues like support, property, safety, or a court date. I cannot give legal advice, but I can help organize the facts for lawyer review. Has anything been filed with the court yet?"
     },
     {
       "intent": "family",
       "prompt": "divroce help",
-      "answer": "Thanks for telling me. For divorce matters, the most useful starting point is whether anything has already been filed, whether there are children involved, and whether there are urgent issues like support, property, safety, or a court date. I cannot give legal advice, but I can help organize the facts for attorney review. Has anything been filed with the court yet?"
+      "answer": "Thanks for telling me. For divorce matters, the most useful starting point is whether anything has already been filed, whether children are involved, and whether there are urgent issues like support, property, safety, or a court date. I cannot give legal advice, but I can help organize the facts for lawyer review. Has anything been filed with the court yet?"
     },
     {
       "intent": "criminal",
       "prompt": "charged with assault",
-      "answer": "A criminal matter is worth handling promptly, especially if there is a court date, warrant, probation issue, or no-contact order. I can help gather intake details, but an attorney should review the charge and paperwork before any decisions are made. Do you have a citation, complaint, or court date yet?"
+      "answer": "A criminal matter is worth handling promptly, especially if there is a court date, warrant, probation issue, or no-contact order. I can help gather intake details, but a lawyer should review the charge and paperwork before any decisions are made. Do you have a citation, complaint, or court date yet?"
     },
     {
       "intent": "criminal",
       "prompt": "criminl charge",
-      "answer": "A criminal matter is worth handling promptly, especially if there is a court date, warrant, probation issue, or no-contact order. I can help gather intake details, but an attorney should review the charge and paperwork before any decisions are made. Do you have a citation, complaint, or court date yet?"
+      "answer": "A criminal matter is worth handling promptly, especially if there is a court date, warrant, probation issue, or no-contact order. I can help gather intake details, but a lawyer should review the charge and paperwork before any decisions are made. Do you have a citation, complaint, or court date yet?"
     },
     {
       "intent": "immigration",
       "prompt": "immigration help",
-      "answer": "Immigration matters are very fact-specific, and dates or prior filings can change the analysis. General information is possible here, but an attorney should review your status history and documents before you rely on next steps. What status, application, notice, or deadline is involved?"
+      "answer": "Immigration matters are very fact-specific, and dates or prior filings can change the analysis. General information is possible here, but a lawyer should review your status history and documents before you rely on next steps. What status, application, notice, or deadline is involved?"
     },
     {
       "intent": "immigration",
       "prompt": "imigration visa",
-      "answer": "Immigration matters are very fact-specific, and dates or prior filings can change the analysis. General information is possible here, but an attorney should review your status history and documents before you rely on next steps. What status, application, notice, or deadline is involved?"
+      "answer": "Immigration matters are very fact-specific, and dates or prior filings can change the analysis. General information is possible here, but a lawyer should review your status history and documents before you rely on next steps. What status, application, notice, or deadline is involved?"
     },
     {
       "intent": "employment",
@@ -64,12 +65,12 @@
     {
       "intent": "debt",
       "prompt": "debt collection",
-      "answer": "For debt collection or recovery, the useful starting point is the amount owed, who owes it, the agreement or invoice, payment history, demand letters, and whether a lawsuit or enforcement step is already underway. MD Law Group lists debt collection and recovery services, but an attorney should review the documents before legal action is chosen. Is the debt based on an invoice, contract, judgment, or something else?"
+      "answer": "For debt collection or recovery, the useful starting point is the amount owed, who owes it, the agreement or invoice, payment history, demand letters, and whether a lawsuit or enforcement step is already underway. MD Law Group lists debt collection and recovery services, but a lawyer should review the documents before legal action is chosen. Is the debt based on an invoice, contract, judgment, or something else?"
     },
     {
       "intent": "debt",
       "prompt": "owed money",
-      "answer": "For debt collection or recovery, the useful starting point is the amount owed, who owes it, the agreement or invoice, payment history, demand letters, and whether a lawsuit or enforcement step is already underway. MD Law Group lists debt collection and recovery services, but an attorney should review the documents before legal action is chosen. Is the debt based on an invoice, contract, judgment, or something else?"
+      "answer": "For debt collection or recovery, the useful starting point is the amount owed, who owes it, the agreement or invoice, payment history, demand letters, and whether a lawsuit or enforcement step is already underway. MD Law Group lists debt collection and recovery services, but a lawyer should review the documents before legal action is chosen. Is the debt based on an invoice, contract, judgment, or something else?"
     }
   ],
   "failedCases": []

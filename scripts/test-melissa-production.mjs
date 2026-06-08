@@ -97,6 +97,7 @@ const staticChecks = {
   mobileCss: /@media \(max-width: 480px\)/.test(html),
   sarahSafe: !/sarah\.png/.test(html),
   disclaimer: /not a lawyer|legal advice/i.test(html),
+  noAwkwardPhrases: !/legal landscape|imperfect wording|attorney review|an attorney should|attorney can|attorney reviewing/i.test(html),
 };
 
 const result = {
