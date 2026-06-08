@@ -3,19 +3,39 @@ import vm from "node:vm";
 
 const html = fs.readFileSync("melissa-demo.html", "utf8");
 const script = html.match(/<script>([\s\S]*?)<\/script>/)[1].split("const chipContainer")[0];
+const ctx = { console, setTimeout, fetch: () => Promise.resolve(), Date, result: null };
+
+vm.createContext(ctx);
+vm.runInContext(script, ctx);
 
 function runPrompt(prompt) {
-  const ctx = { console, setTimeout, fetch: () => Promise.resolve(), Date, result: null };
-  vm.createContext(ctx);
-  vm.runInContext(script, ctx);
   vm.runInContext(
-    `rememberFromMessage(${JSON.stringify(prompt)}); result = responseFor(${JSON.stringify(prompt)});`,
+    `
+    selectedIssue = "";
+    conversationState.turns = 0;
+    conversationState.facts = {
+      matterType: "",
+      deadline: "",
+      documents: "",
+      contactIntent: "",
+      preferredContact: "",
+      issueSummary: "",
+      sentiment: "",
+      urgency: "normal",
+      lastTopicFamily: "",
+      repeatedMessage: false,
+      lastMessage: "",
+    };
+    conversationState.asked = {};
+    rememberFromMessage(${JSON.stringify(prompt)});
+    result = responseFor(${JSON.stringify(prompt)});
+    `,
     ctx,
   );
   return ctx.result;
 }
 
-const targetTotal = 5000;
+const targetTotal = 10000;
 
 const templates = {
   family: ["I need a divorce", "divroce help", "spouse left and kids involved", "custody problem", "child support question", "family court tomorrow", "separation papers", "ex wont let me see kids", "parenting time issue", "I do not know I just need divorce", "my husband served me papers", "my wife moved out", "can I change parenting time", "support and property issue", "my ex is ignoring the order"],
