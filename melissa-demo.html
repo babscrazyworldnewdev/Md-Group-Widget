@@ -115,6 +115,20 @@
         font-size: 15px;
       }
 
+      .brand-logo {
+        display: block;
+        width: auto;
+        max-width: 172px;
+        height: 34px;
+        object-fit: contain;
+        object-position: left center;
+      }
+
+      .brand-logo.is-hidden,
+      .brand-mark.is-hidden {
+        display: none;
+      }
+
       h1 {
         margin: 5px 0 0;
         font-size: 14px;
@@ -177,7 +191,8 @@
         font-weight: 600;
       }
 
-      input {
+      input,
+      select {
         width: 100%;
         height: 38px;
         border: 1px solid var(--border);
@@ -239,6 +254,16 @@
         line-height: 1.35;
       }
 
+      .trust-note {
+        margin: 12px 0;
+        padding: 10px 12px;
+        border-left: 3px solid var(--gold);
+        background: #fffbeb;
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
       .assist-bar {
         border-top: 1px solid var(--border);
         background: #f8fafc;
@@ -297,6 +322,38 @@
       .hidden {
         display: none;
       }
+
+      @media (max-width: 480px) {
+        body {
+          place-items: stretch;
+          background: #fff;
+        }
+
+        .widget {
+          width: 100vw;
+          height: 100vh;
+          border: 0;
+          border-radius: 0;
+        }
+
+        .header {
+          padding: 12px 14px;
+        }
+
+        .field-grid {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+
+        .panel,
+        .messages {
+          padding: 16px;
+        }
+
+        .bubble {
+          max-width: 90%;
+        }
+      }
     </style>
   </head>
   <body>
@@ -304,7 +361,8 @@
       <section class="header">
         <div class="avatar" aria-label="Melissa"><img src="melissa-bot.jpeg" alt="Melissa" /></div>
         <div class="brand-lockup">
-          <div class="brand-mark" aria-label="MD Law Group">
+          <img id="firmLogo" class="brand-logo is-hidden" src="md-law-logo.png" alt="MD Law Group" />
+          <div id="firmLogoFallback" class="brand-mark" aria-label="MD Law Group">
             <span class="brand-icon">MD</span>
             <span class="brand-name">LAW GROUP</span>
           </div>
@@ -334,8 +392,22 @@
             <label for="email">Email <span>(optional)</span></label>
             <input id="email" data-testid="input-email" placeholder="jane@example.com" />
           </div>
+          <div class="field">
+            <label for="preferredContact">Preferred contact <span>(optional)</span></label>
+            <select id="preferredContact" data-testid="input-preferred-contact">
+              <option value="">No preference</option>
+              <option value="Phone">Phone</option>
+              <option value="Email">Email</option>
+              <option value="Text">Text message</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="issueSummary">Legal issue <span>(optional)</span></label>
+            <input id="issueSummary" data-testid="input-issue-summary" placeholder="Briefly describe what happened" />
+          </div>
           <label>What can we help with? <span>(optional)</span></label>
           <div class="chips" id="chips"></div>
+          <p class="trust-note">Melissa is an intake assistant, not a lawyer. She provides general information and helps organize details for MD Law Group; a lawyer must review your facts before legal advice is given.</p>
           <p class="note">Melissa can discuss general legal information and ordinary general knowledge, but an attorney must review your specific facts before legal advice can be given.</p>
           <button class="primary" data-testid="button-start-chat" type="submit">Start Conversation</button>
         </form>
@@ -395,9 +467,13 @@
           deadline: "",
           documents: "",
           contactIntent: "",
+          preferredContact: "",
+          issueSummary: "",
           sentiment: "",
           urgency: "normal",
           lastTopicFamily: "",
+          repeatedMessage: false,
+          lastMessage: "",
         },
         asked: {},
       };
@@ -525,6 +601,8 @@
         const family = detectTopicFamily(topic);
         const sentiment = detectSentiment(topic);
         conversationState.turns += 1;
+        conversationState.facts.repeatedMessage = topic && topic === conversationState.facts.lastMessage;
+        conversationState.facts.lastMessage = topic;
         if (family) {
           conversationState.facts.lastTopicFamily = family;
           if (!conversationState.facts.matterType || conversationState.facts.matterType === "General Question") {
@@ -638,7 +716,9 @@
             "visitor_name",
             "email",
             "phone",
+            "preferred_contact_method",
             "matter_type",
+            "brief_issue_summary",
             "timeline",
             "location",
             "people_involved",
@@ -681,6 +761,20 @@
         const topicFamily = detectTopicFamily(topic);
         const leadIn = humanLeadIn();
         const rememberedMatter = conversationState.facts.matterType || matterContext;
+
+        if (conversationState.facts.repeatedMessage) {
+          return rememberedMatter
+            ? `I hear you. I have this noted as ${rememberedMatter}. To move this forward, the most useful next detail is either the deadline, the document you received, or the result you want from the firm. Which one should we start with?`
+            : "I hear you. To avoid going in circles, I will narrow this down: is the issue mainly family, criminal defence, immigration, employment, civil litigation, debt collection, wills, power of attorney, or contacting MD Law Group?";
+        }
+
+        if (has("stop asking", "just answer", "hurry", "quick answer", "too many questions", "annoying", "useless", "frustrated")) {
+          return `Fair. Short version: I can give general information and organize the key facts, but I cannot give legal advice. ${rememberedMatter ? `For ${rememberedMatter}, ` : ""}the fastest useful next step is to identify any deadline and the main document or event. What is the deadline, if any?`;
+        }
+
+        if (has("hide documents", "destroy evidence", "delete messages", "lie in court", "fake statement", "false statement", "threaten them", "hurt them", "avoid police", "skip court")) {
+          return "I cannot help with anything dishonest, unsafe, or unlawful. What I can do is help you organize the facts safely and identify what a lawyer should review. If there is a court date, police request, or safety concern, contacting MD Law Group promptly is the best next step.";
+        }
 
         if (has("emergency", "immediate danger", "unsafe", "threatening me", "hurt me", "suicide", "kill")) {
           return "I am really sorry you are dealing with that. If anyone is in immediate danger, call emergency services now; for legal help after that, the firm should review the facts as quickly as possible. Are you safe right now, and is there an active threat or injury?";
@@ -731,11 +825,11 @@
           return "Sexual offence allegations are extremely serious and fact-specific. MD Law Group lists sex crimes defence as a practice area; I can help organize the charge, dates, disclosure status, release terms, and court deadlines for attorney review without asking you to share unnecessary sensitive details here. Do you have a charge document or upcoming court date?";
         }
 
-        if (has("domestic violence", "domestic assault", "intimate partner", "assault", "uttering threats", "choking", "strangulation")) {
+        if (has("domestic violence", "domestic assault", "intimate partner", "partner assault", "spousal assault", "uttering threats", "choking", "strangulation")) {
           return "Domestic violence or assault-related allegations can affect safety, release conditions, family arrangements, and criminal exposure. MD Law Group lists domestic violence defence as a practice area, but an attorney would need to review the charge, police paperwork, and any no-contact terms before you rely on next steps. Is there an active safety issue, court date, or release condition?";
         }
 
-        if (has("criminal", "charged", "arrest", "dui", "probation", "no contact", "ticket", "citation", "complaint")) {
+        if (has("criminal", "charged", "arrest", "assault", "dui", "probation", "no contact", "ticket", "citation", "complaint")) {
           return "A criminal matter is worth handling promptly, especially if there is a court date, warrant, probation issue, or no-contact order. I can help gather intake details, but an attorney should review the charge and paperwork before any decisions are made. Do you have a citation, complaint, or court date yet?";
         }
 
@@ -809,6 +903,10 @@
           return "I can answer that plainly. If the question is general knowledge, I will keep it direct; if it touches a legal issue, I will stay general and explain what an attorney would need to review. What term or idea do you want me to clarify?";
         }
 
+        if (has("weather", "joke", "recipe", "sports", "movie", "song", "capital of", "math", "homework")) {
+          return "I can help with general questions, but this assistant is optimized for MD Law Group intake and legal-service guidance. If you have a legal concern, I can route it quickly; if not, the best use of this chat is to ask about practice areas, consultation prep, documents, deadlines, or how to contact the firm.";
+        }
+
         if (topicFamily === "family") {
           return "This sounds like a family-law issue. I can help organize it without assuming the answer: whether anything has been filed, whether children are involved, whether support or property is urgent, and whether there is a court date. What is the most immediate concern?";
         }
@@ -857,6 +955,19 @@
       }
 
       const chipContainer = document.getElementById("chips");
+      const logo = document.getElementById("firmLogo");
+      const logoFallback = document.getElementById("firmLogoFallback");
+
+      logo.addEventListener("load", () => {
+        logo.classList.remove("is-hidden");
+        logoFallback.classList.add("is-hidden");
+      });
+
+      logo.addEventListener("error", () => {
+        logo.classList.add("is-hidden");
+        logoFallback.classList.remove("is-hidden");
+      });
+
       for (const issue of issues) {
         const chip = document.createElement("button");
         chip.type = "button";
@@ -874,10 +985,17 @@
       document.getElementById("leadForm").addEventListener("submit", (event) => {
         event.preventDefault();
         const firstName = document.getElementById("name").value.trim().split(" ")[0];
+        const issueSummary = document.getElementById("issueSummary").value.trim();
+        const preferredContact = document.getElementById("preferredContact").value;
+        conversationState.facts.preferredContact = preferredContact;
+        conversationState.facts.issueSummary = issueSummary;
+        if (issueSummary) rememberFromMessage(issueSummary);
         sendBackendEvent("lead_started", {
           name: document.getElementById("name").value.trim(),
           phone: document.getElementById("phone").value.trim(),
           email: document.getElementById("email").value.trim(),
+          preferredContact,
+          issueSummary,
           snapshot: buildIntakeSnapshot(selectedIssue),
         });
         document.getElementById("leadPanel").classList.add("hidden");
@@ -890,6 +1008,9 @@
           rememberFromMessage(selectedIssue);
           addBubble("user", `I need help with ${selectedIssue}.`);
           addBubble("assistant", responseFor(selectedIssue));
+        } else if (issueSummary) {
+          addBubble("user", issueSummary);
+          addBubble("assistant", responseFor(issueSummary));
         }
       });
 
