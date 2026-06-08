@@ -349,7 +349,7 @@
       </section>
       <form id="composer" class="composer hidden">
         <input id="messageInput" data-testid="input-message" placeholder="Type your legal question here..." />
-        <button class="send" data-testid="button-send" type="submit" aria-label="Send">›</button>
+        <button class="send" data-testid="button-send" type="submit" aria-label="Send">&gt;</button>
       </form>
     </main>
 
@@ -388,6 +388,20 @@
       ];
 
       let selectedIssue = "";
+      const conversationState = {
+        turns: 0,
+        facts: {
+          matterType: "",
+          deadline: "",
+          documents: "",
+          contactIntent: "",
+          sentiment: "",
+          urgency: "normal",
+          lastTopicFamily: "",
+        },
+        asked: {},
+      };
+
       const MELISSA_BACKEND_URL = "";
       const MD_LAW_GROUP_FACTS = {
         phone: "(587) 520-1885",
@@ -445,7 +459,7 @@
 
       const keywordFamilies = {
         family: ["family", "divorce", "separation", "spouse", "husband", "wife", "custody", "parenting", "child support", "children"],
-        criminal: ["criminal", "charged", "arrest", "police", "court", "bail", "assault", "dui", "impaired", "no contact", "probation", "warrant"],
+        criminal: ["criminal", "charged", "arrest", "police", "bail", "assault", "dui", "impaired", "no contact", "probation", "warrant"],
         immigration: ["immigration", "visa", "permit", "status", "deportation", "refugee", "citizenship", "permanent residence"],
         employment: ["employment", "employer", "fired", "terminated", "harassment", "discrimination", "wages", "workplace"],
         litigation: ["lawsuit", "claim", "civil", "dispute", "demand letter", "served", "statement of claim"],
@@ -499,6 +513,65 @@
         return "";
       }
 
+      function detectSentiment(text) {
+        if (/(scared|afraid|terrified|panic|panicking|overwhelmed|crying|stressed|anxious|worried|desperate)/.test(text)) return "distressed";
+        if (/(angry|mad|furious|frustrated|upset|annoyed)/.test(text)) return "frustrated";
+        if (/(confused|lost|dont know|do not know|no idea|not sure)/.test(text)) return "uncertain";
+        return "";
+      }
+
+      function rememberFromMessage(message) {
+        const topic = normalizeMessage(message);
+        const family = detectTopicFamily(topic);
+        const sentiment = detectSentiment(topic);
+        conversationState.turns += 1;
+        if (family) {
+          conversationState.facts.lastTopicFamily = family;
+          if (!conversationState.facts.matterType || conversationState.facts.matterType === "General Question") {
+            const labels = {
+              family: "Family Law",
+              criminal: "Criminal Defence",
+              immigration: "Immigration",
+              employment: "Employment Law",
+              litigation: "Civil Litigation",
+              injury: "Personal Injury",
+              planning: "Wills / Power of Attorney",
+              firm: "Firm Information",
+            };
+            conversationState.facts.matterType = labels[family] || "";
+          }
+        }
+        if (selectedIssue && !conversationState.facts.matterType) conversationState.facts.matterType = selectedIssue;
+        if (/(today|tomorrow|next week|court|hearing|deadline|served|warrant|emergency|urgent)/.test(topic)) {
+          conversationState.facts.deadline = "mentioned";
+          conversationState.facts.urgency = "high";
+        }
+        if (/(document|documents|paperwork|notice|order|contract|invoice|photos|screenshots|email|text messages|police report)/.test(topic)) {
+          conversationState.facts.documents = "mentioned";
+        }
+        if (/(call me|callback|book|appointment|schedule|consultation|speak to someone|talk to someone)/.test(topic)) {
+          conversationState.facts.contactIntent = "requested";
+        }
+        if (sentiment) conversationState.facts.sentiment = sentiment;
+      }
+
+      function alreadyAsked(key) {
+        if (conversationState.asked[key]) return true;
+        conversationState.asked[key] = true;
+        return false;
+      }
+
+      function nextQuestion(key, fallback, alternate) {
+        return alreadyAsked(key) && alternate ? alternate : fallback;
+      }
+
+      function humanLeadIn() {
+        if (conversationState.facts.sentiment === "distressed") return "I know this can feel like a lot, so let us keep the next step simple.";
+        if (conversationState.facts.sentiment === "frustrated") return "That frustration makes sense, and the best move is to pin down the facts that change options.";
+        if (conversationState.facts.sentiment === "uncertain") return "It is okay not to know the legal category yet.";
+        return "";
+      }
+
       function getIntent(message) {
         const topic = normalizeMessage(message);
         if (topic.includes("deadline") || topic.includes("court") || topic.includes("hearing") || topic.includes("emergency") || topic.includes("eviction") || topic.includes("threat") || topic.includes("warrant") || topic.includes("served")) return "urgent_triage";
@@ -545,6 +618,8 @@
           assistant: "Melissa",
           firm: "MD Law Group",
           selectedIssue: selectedIssue || "Not selected",
+          sessionFacts: conversationState.facts,
+          turnCount: conversationState.turns,
           detectedIntent,
           urgency,
           priorityLevel: urgency === "high" ? "priority_review" : "standard_intake",
@@ -604,19 +679,29 @@
         const hasExact = (...terms) => terms.some((term) => topic.includes(term));
         const matterPrompt = matterContext ? `For ${matterContext},` : "For this matter,";
         const topicFamily = detectTopicFamily(topic);
+        const leadIn = humanLeadIn();
+        const rememberedMatter = conversationState.facts.matterType || matterContext;
 
         if (has("emergency", "immediate danger", "unsafe", "threatening me", "hurt me", "suicide", "kill")) {
           return "I am really sorry you are dealing with that. If anyone is in immediate danger, call emergency services now; for legal help after that, the firm should review the facts as quickly as possible. Are you safe right now, and is there an active threat or injury?";
         }
 
+        if (conversationState.turns > 1 && has("yes", "yeah", "yep", "no", "not sure", "maybe", "i think so", "i dont know", "i do not know")) {
+          const known = rememberedMatter ? `I have this as a ${rememberedMatter} issue. ` : "";
+          if (conversationState.facts.deadline === "mentioned") {
+            return `${known}Since a deadline or court date may be involved, the next useful detail is the exact date on the paperwork and what the document is called. You do not need to explain everything at once. What date do you see?`;
+          }
+          return `${known}${leadIn ? `${leadIn} ` : ""}The next helpful detail is the timeline: when this started, what happened most recently, and whether any document or deadline exists. What happened most recently?`;
+        }
+
         if (topic.startsWith("hello") || topic.startsWith("hi ") || topic.startsWith("hey") || has("overwhelmed", "not sure where to start", "only know part", "i dont know", "i do not know", "no idea", "confused", "help me")) {
           if (topicFamily === "family") {
-            return "Thanks for telling me. I would start by separating the urgent facts from the background: whether anything has been filed, whether children are involved, whether anyone feels unsafe, and whether there is a court date or deadline. What has happened most recently?";
+            return `${leadIn ? `${leadIn} ` : ""}Thanks for telling me. I would start by separating the urgent facts from the background: whether anything has been filed, whether children are involved, whether anyone feels unsafe, and whether there is a court date or deadline. ${nextQuestion("family_recent", "What has happened most recently?", "What is the deadline, document, or concern that feels most urgent right now?")}`;
           }
           if (topicFamily === "criminal") {
-            return "Thanks for telling me. I would focus first on the charge or police issue, any release conditions, the next court date, and whether there is a no-contact order or warrant. What paperwork or date do you have right now?";
+            return `${leadIn ? `${leadIn} ` : ""}Thanks for telling me. I would focus first on the charge or police issue, any release conditions, the next court date, and whether there is a no-contact order or warrant. ${nextQuestion("criminal_paperwork", "What paperwork or date do you have right now?", "What condition, charge, or court date should the legal team notice first?")}`;
           }
-          return "You do not need to have everything figured out before you ask for help. I can help turn partial information into a clear summary for the legal team: the type of problem, when it began, whether there is a deadline, and what outcome you are hoping for. What happened most recently?";
+          return `${leadIn ? `${leadIn} ` : ""}You do not need to have everything figured out before you ask for help. I can help turn partial information into a clear summary for the legal team: the type of problem, when it began, whether there is a deadline, and what outcome you are hoping for. ${nextQuestion("recent_event", "What happened most recently?", "What result are you hoping the firm can help you reach?")}`;
         }
 
         if (hasExact("md law group", "md law", "office", "location", "address", "phone number", "email address", "contact info", "firm contact", "lawyers", "team", "practice areas", "what do you handle", "what does the firm do", "what does md law handle")) {
@@ -635,7 +720,7 @@
         if (has("book", "schedule", "appointment", "callback", "call me", "talk to someone", "speak to someone")) {
           return matterContext
             ? `I can help you get ready for a ${matterContext} consultation without turning this into a long form. The legal team will mainly need the best phone or email, any deadline or court date, and a one-line summary. Is there any urgent date the firm should know about?`
-            : "I can help you get ready for a consultation without turning this into a long form. The most useful routing details are your matter type, the best phone or email, any deadline or court date, and a one-line summary for the legal team. What kind of legal issue should the consultation be routed to?";
+            : `I can help you get ready for a consultation without turning this into a long form. ${rememberedMatter ? `I have this routed as ${rememberedMatter}. ` : ""}The most useful routing details are the best phone or email, any deadline or court date, and a one-line summary for the legal team. What urgent date or contact detail should come first?`;
         }
 
         if (has("too expensive", "can't afford", "cannot afford", "not sure i need a lawyer", "not ready", "afraid", "scared to call", "don't want trouble", "do not want trouble")) {
@@ -659,7 +744,7 @@
         }
 
         if (has("custody", "parenting time", "visitation", "child support", "my child", "kids", "other parent")) {
-          return "Custody questions can feel heavy, especially when routines or safety are involved. I cannot advise on what a court may do, but the legal team can review any existing order, upcoming court dates, the current schedule, and immediate concerns for the child. Is there already a custody or parenting-time order in place?";
+          return `${leadIn ? `${leadIn} ` : ""}Custody questions can feel heavy, especially when routines or safety are involved. I cannot advise on what a court may do, but the legal team can review any existing order, upcoming court dates, the current schedule, and immediate concerns for the child. ${nextQuestion("custody_order", "Is there already a custody or parenting-time order in place?", "Is the main issue the current schedule, safety, support, or an upcoming court date?")}`;
         }
 
         if (has("cost", "fee", "free consultation", "pricing", "consultation cost", "how much is a consultation", "pay today", "pay for consultation")) {
@@ -679,7 +764,7 @@
         }
 
         if (has("divorce", "separation", "spouse", "husband", "wife", "marriage", "moved money")) {
-          return "Thanks for telling me. For divorce matters, the most useful starting point is whether anything has already been filed, whether there are children involved, and whether there are urgent issues like support, property, safety, or a court date. I cannot give legal advice, but I can help organize the facts for an attorney review. Has anything been filed with the court yet?";
+          return `${leadIn ? `${leadIn} ` : ""}Thanks for telling me. For divorce matters, the most useful starting point is whether anything has already been filed, whether there are children involved, and whether there are urgent issues like support, property, safety, or a court date. I cannot give legal advice, but I can help organize the facts for attorney review. ${nextQuestion("divorce_filed", "Has anything been filed with the court yet?", "What changed most recently: separation, filing, children, money, property, or safety?")}`;
         }
 
         if (has("immigration", "visa", "green card", "deportation", "asylum", "uscis", "work permit", "status")) {
@@ -802,6 +887,7 @@
         addBubble("assistant", `${firstName ? `Hi ${firstName}. ` : ""}${welcome.replace("Hi, ", "")}`);
         addQuickPrompts();
         if (selectedIssue) {
+          rememberFromMessage(selectedIssue);
           addBubble("user", `I need help with ${selectedIssue}.`);
           addBubble("assistant", responseFor(selectedIssue));
         }
@@ -813,6 +899,7 @@
         const value = input.value.trim();
         if (!value) return;
         input.value = "";
+        rememberFromMessage(value);
         addBubble("user", value);
         sendBackendEvent("chat_message", {
           role: "user",
